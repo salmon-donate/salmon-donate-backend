@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  backend-goipay_db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: goipay_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d goipay_db" ]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5433:5432"
+  backend-goipay_db_migrations:
+    image: ghcr.io/kukymbr/goose-docker:3.21.1
+    environment:
+      - GOOSE_DRIVER=postgres
+      - GOOSE_DBSTRING=host=backend-goipay_db port=5432 user=postgres password=postgres dbname=goipay_db
+    volumes:
+      - ./external/goipay/sql/migrations:/migrations
+    depends_on:
+      backend-goipay_db:
+        condition: service_healthy
+  backend-goipay:
+    image: chekist32/goipay:v0.3.0
+    environment:
+      - MODE=dev
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=3000
+      - DATABASE_HOST=backend-goipay_db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASS=postgres
+      - DATABASE_NAME=goipay_db
+      - XMR_DAEMON_URL=http://node.monerodevs.org:38089
+      - XMR_DAEMON_USER=
+      - XMR_DAEMON_PASS=
+    depends_on:
+      - backend-goipay_db_migrations
+    ports:
+      - "3000:3000"
+
+  backend-backend_db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: salmon_donate_backend
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d salmon_donate_backend" ]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5434:5432"
+
+  backend-migrations_backend_db:
+    image: liquibase/liquibase
+    volumes:
+      - ./src/main/resources/db:/liquibase/changelog
+    command: liquibase --driver=org.postgresql.Driver --url='jdbc:postgresql://backend-backend_db:5432/salmon_donate_backend' --changeLogFile=./changelog/migrations-master.yml --username=postgres --password=postgres update
+    depends_on:
+      backend-backend_db:
+        condition: service_healthy

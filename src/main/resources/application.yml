@@ -1,0 +1,83 @@
+quarkus:
+  datasource:
+    db-kind: postgresql
+    username: ${SD_DB_USER}
+    password: ${SD_DB_PASS}
+    jdbc:
+      url: jdbc:postgresql://${SD_DB_HOST}:${SD_DB_PORT}/${SD_DB_NAME}
+    sd-db:
+      db-kind: postgresql
+      username: ${SD_DB_USER}
+      password: ${SD_DB_PASS}
+      jdbc:
+        url: jdbc:postgresql://${SD_DB_HOST}:${SD_DB_PORT}/${SD_DB_NAME}
+    goipay-db:
+      db-kind: postgresql
+      username: ${GOIPAY_DB_USER}
+      password: ${GOIPAY_DB_PASS}
+      jdbc:
+        url: jdbc:postgresql://${GOIPAY_DB_HOST}:${GOIPAY_DB_PORT}/${GOIPAY_DB_NAME}
+
+  oidc:
+    auth-server-url: ${SD_KEYCLOAK_BASE_URL}/realms/${SD_KEYCLOAK_REALM}
+    client-id: ${SD_KEYCLOAK_REALM_CLIENT}
+    credentials:
+      secret: ${SD_KEYCLOAK_REALM_SECRET}
+    tls:
+      verification: none
+    security:
+      authentication: enabled
+
+  keycloak:
+    admin-client:
+      enabled: true
+      server-url: ${SD_KEYCLOAK_BASE_URL}
+      realm: ${SD_KEYCLOAK_REALM}
+      client-id: ${SD_KEYCLOAK_REALM_CLIENT}
+      client-secret: ${SD_KEYCLOAK_REALM_SECRET}
+      username: ${SD_KEYCLOAK_REALM_ADMIN_USERNAME}
+      password: ${SD_KEYCLOAK_REALM_ADMIN_PASSWORD}
+      grant-type: password
+
+  jooq:
+    dialect: PostgreSQL
+
+    dsl-sd:
+      dialect: PostgreSQL
+      datasource: sd-db
+    dsl-goipay:
+      dialect: PostgreSQL
+      datasource: goipay-db
+
+  http:
+    host: 0.0.0.0
+    cors:
+      ~: true
+      origins: ${SD_ALLOWED_URLS}
+    body:
+      delete-uploaded-files-on-end: true
+      uploads-directory: /tmp
+    limits:
+      max-form-attribute-size: 50M
+  vertx:
+    max-event-loop-execute-time: 5000
+    blocked-thread-check-interval: 3500
+
+  minio:
+    url: ${SD_MINIO_URL}
+    port: ${SD_MINIO_PORT}
+    secure: ${SD_MINIO_SECURE}
+    access-key: ${SD_MINIO_ACCESS_KEY}
+    secret-key: ${SD_MINIO_SECRET_KEY}
+
+  grpc:
+    dev-mode:
+      force-server-start: false
+    clients:
+      goipay:
+        use-quarkus-grpc-client: true
+        host: ${GOIPAY_HOST}
+        port: ${GOIPAY_PORT}
+
+keycloak-webhook:
+  secret: ${SD_KEYCLOAK_WEBHOOK_SECRET}
