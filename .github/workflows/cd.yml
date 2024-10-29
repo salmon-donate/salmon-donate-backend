@@ -1,0 +1,74 @@
+name: CD
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  # JVM Build
+  jvm-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Run JVM Build Script
+        run: ./scripts/build-jvm.sh
+
+      - name: Build and Push JVM Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./src/main/docker/Dockerfile.jvm
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-jvm:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-jvm:${{ github.ref_name }}
+
+  # Native Build
+  graalvm-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Run GraalVM Build Script
+        run: ./scripts/build-native.sh
+
+      - name: Build and Push GraalVM Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./src/main/docker/Dockerfile.native-micro
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-graalvm:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-graalvm:${{ github.ref_name }}
