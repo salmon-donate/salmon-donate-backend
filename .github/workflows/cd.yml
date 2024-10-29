@@ -47,18 +47,17 @@ jobs:
 
   # Native Build
   graalvm-build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Java
-        uses: graalvm/setup-graalvm@v1
+        uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: '21'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
