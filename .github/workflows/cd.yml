@@ -43,7 +43,7 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate:jvm-latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate:$jvm-{{ github.ref_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate:jvm-${{ github.ref_name }}
 
   # Native Build
   graalvm-build:
