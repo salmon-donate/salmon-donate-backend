@@ -48,6 +48,7 @@ jobs:
   # Native Build
   graalvm-build:
     runs-on: ubuntu-latest
+    container: ubuntu:22.04
 
     steps:
       - name: Checkout code
