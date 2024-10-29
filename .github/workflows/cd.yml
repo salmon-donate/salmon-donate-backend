@@ -42,8 +42,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate:jvm-latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate:jvm-${{ github.ref_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-backend:jvm-latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-backend:jvm-${{ github.ref_name }}
 
   # Native Build
   graalvm-build:
@@ -83,5 +83,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate:graalvm-latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate:graalvm-${{ github.ref_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-backend:graalvm-latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-backend:graalvm-${{ github.ref_name }}
