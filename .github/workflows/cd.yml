@@ -4,6 +4,9 @@ on:
   release:
     types: [published]
 
+env:
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-backend
+
 jobs:
   # JVM Build
   jvm-build:
@@ -42,8 +45,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-backend:jvm-latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-backend:jvm-${{ github.ref_name }}
+            ${{ env.IMAGE_NAME }}:jvm-latest
+            ${{ env.IMAGE_NAME }}:jvm-${{ github.ref_name }}
 
   # Native Build
   graalvm-build:
@@ -78,13 +81,46 @@ jobs:
       - name: Run GraalVM Build Script
         run: ./scripts/build-native.sh
 
-      - name: Build and Push GraalVM Docker Image
+      - name: Build and Push GraalVM Docker Image by Digest
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./src/main/docker/Dockerfile.native-micro
           platforms: linux/${{ matrix.architecture }}
-          push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-backend:graalvm-latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-backend:graalvm-${{ github.ref_name }}
+            ${{ env.IMAGE_NAME }}:graalvm-latest-${{ matrix.architecture }}
+            ${{ env.IMAGE_NAME }}:graalvm-${{ github.ref_name }}-${{ matrix.architecture }}
+          push: true
+
+  graalvm-build-create-manifests:
+    runs-on: ubuntu-latest
+    needs: [ graalvm-build ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create Versioned Manifest and Push
+        run: |
+          docker manifest create \
+            my-registry/my-repo:${{ github.sha }} \
+            --amend ${{ env.IMAGE_NAME }}:graalvm-${{ github.ref_name }}-amd64 \
+            --amend ${{ env.IMAGE_NAME }}:graalvm-${{ github.ref_name }}-arm64
+          docker manifest push ${{ env.IMAGE_NAME }}:graalvm-${{ github.ref_name }}
+
+      - name: Create Latest Manifest and Push
+        run: |
+          docker manifest create \
+            my-registry/my-repo:latest \
+            --amend ${{ env.IMAGE_NAME }}:graalvm-latest-amd64 \
+            --amend ${{ env.IMAGE_NAME }}:graalvm-latest-arm64
+          docker manifest push ${{ env.IMAGE_NAME }}:latest
