@@ -83,6 +83,7 @@ jobs:
         with:
           context: .
           file: ./src/main/docker/Dockerfile.native-micro
+          platforms: linux/${{ matrix.architecture }}
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/salmon-donate-backend:graalvm-latest
