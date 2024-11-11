@@ -122,7 +122,7 @@ jobs:
     steps:
       - name: Install Docker
         run: |
-          brew install docker docker-machine docker-compose
+          brew install docker docker-machine docker-compose colima
           colima start
 
       - name: Docker Meta
