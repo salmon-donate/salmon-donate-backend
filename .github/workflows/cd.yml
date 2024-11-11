@@ -75,6 +75,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Verify Java Version
+        uses: java -XshowSettings:properties -version
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
