@@ -13,7 +13,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>3.14.2</quarkus.platform.version>
+        <quarkus.platform.version>3.16.2</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.3.1</surefire-plugin.version>
         <quarkus.package.type>native</quarkus.package.type>
@@ -91,7 +91,6 @@
             <artifactId>jackson-module-kotlin</artifactId>
         </dependency>
 
-
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-client-jackson</artifactId>
@@ -130,6 +129,10 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-health</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-metrics</artifactId>
         </dependency>
 
         <dependency>
@@ -196,11 +199,6 @@
     </dependencies>
 
     <build>
-<!--        <resources>-->
-<!--            <resource>-->
-<!--                <directory>target/generated-sources</directory>-->
-<!--            </resource>-->
-<!--        </resources>-->
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         <plugins>
@@ -390,12 +388,6 @@
                         </goals>
                     </execution>
                 </executions>
-<!--                <configuration>-->
-<!--                    <sourceDirs>-->
-<!--                        <sourceDir>src/main/kotlin</sourceDir>-->
-<!--                        <sourceDir>target/generated-sources</sourceDir>-->
-<!--                    </sourceDirs>-->
-<!--                </configuration>-->
                 <dependencies>
                     <dependency>
                         <groupId>org.jetbrains.kotlin</groupId>
@@ -404,10 +396,6 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <sourceDirs>
-                        <sourceDir>src/main/kotlin</sourceDir>
-                        <sourceDir>target/generated-sources</sourceDir>
-                    </sourceDirs>
                     <javaParameters>true</javaParameters>
                     <args>
                         <arg>-Xjvm-default=all</arg>

@@ -59,9 +59,6 @@ quarkus:
       uploads-directory: /tmp
     limits:
       max-form-attribute-size: 50M
-  vertx:
-    max-event-loop-execute-time: 5000
-    blocked-thread-check-interval: 3500
 
   minio:
     url: ${SD_MINIO_URL}
@@ -78,6 +75,10 @@ quarkus:
         use-quarkus-grpc-client: true
         host: ${GOIPAY_HOST}
         port: ${GOIPAY_PORT}
+
+  rest-client:
+    keycloak-admin-api:
+      url: ${SD_KEYCLOAK_BASE_URL}
 
 keycloak-webhook:
   secret: ${SD_KEYCLOAK_WEBHOOK_SECRET}

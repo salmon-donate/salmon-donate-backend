@@ -1,7 +1,5 @@
 package com.github.chekist32.donation
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.chekist32.jooq.goipay.enums.CoinType
 import com.github.chekist32.parseUserIdOrThrowBadRequest
 import com.github.chekist32.payment.InvoiceToPayDTO
 import com.github.chekist32.user.UserService
@@ -15,7 +13,6 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.sse.SseEventSink
-import kotlinx.coroutines.future.await
 import org.eclipse.microprofile.jwt.JsonWebToken
 import org.eclipse.microprofile.openapi.annotations.Operation
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType
@@ -26,7 +23,6 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses
 import org.jboss.resteasy.reactive.RestStreamElementType
-import org.jboss.resteasy.reactive.server.jaxrs.OutboundSseEventImpl
 import org.jooq.DSLContext
 import java.util.*
 
