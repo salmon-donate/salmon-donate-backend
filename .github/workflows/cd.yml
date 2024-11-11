@@ -123,7 +123,6 @@ jobs:
       - name: Install docker
         run: |
           brew install docker docker-machine docker-compose
-          docker –v
 
       - name: Docker Meta
         id: meta
