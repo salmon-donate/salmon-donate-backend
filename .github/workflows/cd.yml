@@ -146,7 +146,7 @@ jobs:
         run: uname -a
 
       - name: Replace docker compose to docker-compose
-        run: sed -i '' 's/docker compose/docker-compose/g' ./script/build-native.sh
+        run: sed -i '' 's/docker compose/docker-compose/g' ./scripts/build-native.sh
 
       - name: Run GraalVM Build Script
         run: ./scripts/build-native.sh
