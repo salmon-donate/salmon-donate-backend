@@ -125,7 +125,7 @@ jobs:
           brew install docker docker-machine docker-compose
 
       - name: Replace docker compose to docker-compose
-        run: sed -i '' 's/docker compose/docker-compose/g' path/to/your/file
+        run: sed -i '' 's/docker compose/docker-compose/g' ./script/build-native.sh
 
       - name: Docker Meta
         id: meta
