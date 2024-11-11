@@ -75,6 +75,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Verify Os Version
+        run: uname -a
+
       - name: Verify Java Version
         run: java -XshowSettings:properties -version
 
