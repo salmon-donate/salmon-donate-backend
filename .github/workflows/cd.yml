@@ -120,9 +120,15 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Install docker
+      - name: Install Docker
         run: |
-          brew install docker docker-machine docker-compose
+          brew install docker docker-machine
+      - name: Install Docker Compose
+        run: |
+          sudo i          
+          curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          docker compose version
 
       - name: Docker Meta
         id: meta
