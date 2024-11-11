@@ -124,9 +124,6 @@ jobs:
         run: |
           brew install docker docker-machine docker-compose
 
-      - name: Replace docker compose to docker-compose
-        run: sed -i '' 's/docker compose/docker-compose/g' ./script/build-native.sh
-
       - name: Docker Meta
         id: meta
         uses: docker/metadata-action@v5
@@ -147,6 +144,9 @@ jobs:
 
       - name: Verify Os Version
         run: uname -a
+
+      - name: Replace docker compose to docker-compose
+        run: sed -i '' 's/docker compose/docker-compose/g' ./script/build-native.sh
 
       - name: Run GraalVM Build Script
         run: ./scripts/build-native.sh
