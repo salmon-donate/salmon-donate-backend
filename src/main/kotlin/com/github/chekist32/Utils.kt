@@ -36,13 +36,19 @@ val Dispatchers.VT
 class TransactionalContext(val transactionalDslContext: DSLContext) : AbstractCoroutineContextElement(Key) {
     companion object Key : CoroutineContext.Key<TransactionalContext>
 }
-suspend fun <T> withTransactionScope(dsl: DSLContext, block: suspend CoroutineScope.() -> T): T {
+suspend fun <T> withTransactionScope(
+    dsl: DSLContext,
+    classLoader: ClassLoader = Thread.currentThread().contextClassLoader,
+    block: suspend CoroutineScope.() -> T
+): T {
     return dsl.transactionCoroutine { configuration ->
         val transactionalDslContext = DSL.using(configuration)
 
         val transactionalContext = TransactionalContext(transactionalDslContext)
 
         withContext(transactionalContext) {
+            // Issues - https://github.com/quarkusio/quarkus/issues/42219, https://github.com/quarkusio/quarkus/issues/40245
+            Thread.currentThread().contextClassLoader = classLoader
             block(this)
         }
     }
