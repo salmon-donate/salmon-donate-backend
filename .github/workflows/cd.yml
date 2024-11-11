@@ -130,6 +130,10 @@ jobs:
           chmod +x /usr/local/bin/docker-compose
           docker-compose version
 
+      - name: Create symlink for docker compose
+        run: |
+          sudo ln -s /usr/local/bin/docker-compose /usr/local/bin/docker\ compose
+
       - name: Docker Meta
         id: meta
         uses: docker/metadata-action@v5
