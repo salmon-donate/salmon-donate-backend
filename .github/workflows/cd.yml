@@ -123,6 +123,7 @@ jobs:
       - name: Install Docker
         run: |
           brew install docker docker-machine docker-compose
+          colima start
 
       - name: Docker Meta
         id: meta
