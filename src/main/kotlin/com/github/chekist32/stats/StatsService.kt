@@ -5,7 +5,6 @@ import com.github.chekist32.base.dto.Quadruple
 import com.github.chekist32.converter.CryptoCurrencyConverter
 import com.github.chekist32.donation.DonationDTOForReceiver
 import com.github.chekist32.jooq.goipay.tables.references.INVOICES
-import com.github.chekist32.jooq.sd.enums.CurrencyType
 import com.github.chekist32.jooq.sd.tables.references.DONATIONS
 import com.github.chekist32.jooq.sd.tables.references.TIME_ZONES
 import com.github.chekist32.jooq.sd.tables.references.USERS
