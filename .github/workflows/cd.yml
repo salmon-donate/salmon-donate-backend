@@ -122,8 +122,15 @@ jobs:
     steps:
       - name: Install Docker
         run: |
-          brew install docker docker-machine docker-compose colima
-          colima start
+          brew install docker docker-compose colima
+
+      - name: Start Colima
+        run: |
+          colima start --arch aarch64 --memory 4 --cpu 2
+
+      - name: Wait for Docker to Start
+        run: |
+          until docker info > /dev/null 2>&1; do sleep 1; done
 
       - name: Docker Meta
         id: meta
