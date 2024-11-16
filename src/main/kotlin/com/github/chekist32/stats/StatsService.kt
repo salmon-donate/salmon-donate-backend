@@ -45,7 +45,7 @@ class StatsService(
         }
     }
 
-    suspend fun getDonationStatsByUserIdAndPeriod(userId: UUID, period: StatsPeriod) = withContext(Dispatchers.VT) {
+    fun getDonationStatsByUserIdAndPeriod(userId: UUID, period: StatsPeriod): DonationStatsPeriodResponse {
         val (start, end) = getTimeRangeByPeriod(period)
         val paymentIdsForPeriod = dslSD.select(DONATIONS.PAYMENT_ID)
             .from(DONATIONS)
@@ -97,7 +97,7 @@ class StatsService(
             )
         }
 
-        return@withContext DonationStatsPeriodResponse(
+        return DonationStatsPeriodResponse(
             donationCount = paymentIdsForPeriod.size,
             amount = amount,
             avgAmount = if (paymentIdsForPeriod.isNotEmpty()) amount / paymentIdsForPeriod.size else 0.0,

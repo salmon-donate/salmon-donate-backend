@@ -24,7 +24,7 @@ class KeycloakWebhookFilter(
     }
 
     @ServerRequestFilter
-    suspend fun checkApiKey(ctx: ContainerRequestContext): Response?  {
+    fun checkApiKey(ctx: ContainerRequestContext): Response?  {
         if (apiKey == null || ctx.uriInfo.path != uriMatcher) return null
 
         val reqApiKey = ctx.getHeaderString("X-Keycloak-Signature") ?: return Response.status(Response.Status.UNAUTHORIZED).build()

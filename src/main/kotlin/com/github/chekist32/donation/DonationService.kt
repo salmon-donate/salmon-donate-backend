@@ -31,9 +31,7 @@ class DonationService(
     @Named("dsl-goipay")
     private val dslGoipay: DSLContext
 ) {
-    suspend fun getDonationsPageableByUserId(userId: UUID, page: Int, limit: Int) = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun getDonationsPageableByUserId(userId: UUID, page: Int, limit: Int): DonationDTOForReceiverResponse {
         val (totalCount) = dslSD.selectCount()
             .from(DONATIONS)
             .where(DONATIONS.USER_ID.eq(userId).and(DONATIONS.SHOWN_AT.isNotNull))
@@ -67,7 +65,7 @@ class DonationService(
             .where(INVOICES.ID.`in`(donations.mapNotNull { it.value4() }))
             .fetch()
 
-        return@withContext DonationDTOForReceiverResponse(
+        return DonationDTOForReceiverResponse(
             page = page,
             limit = limit,
             totalCount = totalCount,
@@ -91,9 +89,7 @@ class DonationService(
         )
     }
 
-    suspend fun handleDonation(username: String, req: DonationRequest): InvoiceToPayDTO {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun handleDonation(username: String, req: DonationRequest): InvoiceToPayDTO {
         val userId = try {
             val user = keycloakUserService.getUserByUsername(username)
             UUID.fromString(user.id)
@@ -101,7 +97,7 @@ class DonationService(
             throw InternalServerErrorException()
         }
 
-        val (minAmount, confirmation, minAmountCurrency, timeout) = withContext(Dispatchers.VT) {
+        val (minAmount, confirmation, minAmountCurrency, timeout) =
             dslSD.select(
                 DONATION_PROFILE_DATA.MIN_AMOUNT,
                 DONATION_PROFILE_DATA.CONFIRMATION_TYPE,
@@ -112,8 +108,7 @@ class DonationService(
                 .join(USERS)
                 .on(USERS.ID.eq(DONATION_PROFILE_DATA.USER_ID))
                 .where(DONATION_PROFILE_DATA.USER_ID.eq(userId))
-                .fetchOne()
-        } ?: throw InternalServerErrorException()
+                .fetchOne() ?: throw InternalServerErrorException()
         if (minAmount == null || confirmation == null || minAmountCurrency == null || timeout == null) throw InternalServerErrorException()
 
         val invoice = paymentService.createCryptoPayment(
@@ -127,14 +122,12 @@ class DonationService(
             )
         )
 
-        withContext(Dispatchers.VT) {
-            dslSD.insertInto(DONATIONS)
-                .set(DONATIONS.FROM, req.from)
-                .set(DONATIONS.MESSAGE, req.message)
-                .set(DONATIONS.USER_ID, userId)
-                .set(DONATIONS.PAYMENT_ID, UUID.fromString(invoice.paymentId))
-                .execute()
-        }
+        dslSD.insertInto(DONATIONS)
+            .set(DONATIONS.FROM, req.from)
+            .set(DONATIONS.MESSAGE, req.message)
+            .set(DONATIONS.USER_ID, userId)
+            .set(DONATIONS.PAYMENT_ID, UUID.fromString(invoice.paymentId))
+            .execute()
 
         return invoice
     }

@@ -50,7 +50,7 @@ class PaymentResource(
             APIResponse(responseCode = "500", description = "Server error")
         ]
     )
-    suspend fun getDonationInvoice(@PathParam("paymentId") paymentId: UUID): Response {
+    fun getDonationInvoice(@PathParam("paymentId") paymentId: UUID): Response {
         val payment = paymentService.getPaymentByPaymentId(paymentId)
 
         return Response.ok().entity(payment.toInvoiceToPayDTO()).build()
@@ -91,7 +91,7 @@ class PaymentResource(
             APIResponse(responseCode = "500", description = "Server error while establishing SSE connection")
         ]
     )
-    suspend fun getPaymentStatusSse(@PathParam("paymentId") paymentId: UUID, @Context sink: SseEventSink) {
+    fun getPaymentStatusSse(@PathParam("paymentId") paymentId: UUID, @Context sink: SseEventSink) {
         paymentNotificationService.addNewPaymentStatusSee(paymentId, sink)
     }
 

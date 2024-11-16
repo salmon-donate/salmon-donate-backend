@@ -52,7 +52,7 @@ class DonationResource(
             APIResponse(responseCode = "500", description = "Server error")
         ]
     )
-    suspend fun getDonationsPageable(@QueryParam("page") page: Int = 0, @QueryParam("limit") limit: Int = 20, @Context token: JsonWebToken): Response {
+    fun getDonationsPageable(@QueryParam("page") page: Int = 0, @QueryParam("limit") limit: Int = 20, @Context token: JsonWebToken): Response {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
         when {
@@ -79,7 +79,7 @@ class DonationResource(
             APIResponse(responseCode = "500", description = "Server error")
         ]
     )
-    suspend fun donateGet(@PathParam("username") username: String): Response {
+    fun donateGet(@PathParam("username") username: String): Response {
         val donationData = userService.getDonationDataByUsername(username)
 
         return Response.status(Response.Status.OK).entity(donationData).build()
@@ -98,10 +98,10 @@ class DonationResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun donatePost(@PathParam("username") username: String, @Valid @RequestBody req: DonationRequest): Response = withTransactionScope(dslSD) {
+    fun donatePost(@PathParam("username") username: String, @Valid @RequestBody req: DonationRequest): Response {
         val invoice = donationService.handleDonation(username, req)
 
-        return@withTransactionScope Response.status(Response.Status.CREATED).entity(invoice).build()
+        return Response.status(Response.Status.CREATED).entity(invoice).build()
     }
 
     @GET
@@ -132,7 +132,7 @@ class DonationResource(
             APIResponse(responseCode = "500", description = "Server error while establishing SSE connection")
         ]
     )
-    suspend fun donateSseGet(@Context sink: SseEventSink, @QueryParam("token") notificationToken: UUID): Response {
+    fun donateSseGet(@Context sink: SseEventSink, @QueryParam("token") notificationToken: UUID): Response {
         donationNotificationService.registerDonationSse(userService.getUserIdByNotificationToken(notificationToken), sink)
 
         return Response.status(Response.Status.OK).build()
@@ -152,7 +152,7 @@ class DonationResource(
             APIResponse(responseCode = "401", description = "Unauthorized access.")
         ]
     )
-    suspend fun sendTestDonation(@Context token: JsonWebToken): Response {
+    fun sendTestDonation(@Context token: JsonWebToken): Response {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
         donationNotificationService.sendTestDonation(userId)
         return Response.status(Response.Status.OK).build()

@@ -54,10 +54,10 @@ suspend fun <T> withTransactionScope(
     }
 }
 
-suspend fun ContainerRequestContext.getBodyWithoutModifying(): ByteArray = withContext(Dispatchers.VT) {
+fun ContainerRequestContext.getBodyWithoutModifying(): ByteArray {
     val body = entityStream.readAllBytes()
     entityStream = ByteArrayInputStream(body)
-    return@withContext body
+    return body
 }
 
 fun Timestamp.toUTCLocalDateTime(): LocalDateTime {

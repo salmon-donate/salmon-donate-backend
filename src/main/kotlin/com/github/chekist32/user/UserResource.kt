@@ -47,7 +47,7 @@ class UserResource(
             APIResponse(responseCode = "401", description = "Unauthorized access")
         ]
     )
-    suspend fun getProfileData(@Context token: JsonWebToken): Response {
+    fun getProfileData(@Context token: JsonWebToken): Response {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
         return Response.ok().entity(userService.getProfileData(userId)).build()
@@ -69,13 +69,11 @@ class UserResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun putProfileData(@Valid req: ProfileDataUpdateRequest, @Context token: JsonWebToken): Response {
+    fun putProfileData(@Valid req: ProfileDataUpdateRequest, @Context token: JsonWebToken): Response {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
-        return withTransactionScope(dslSD) {
-            userService.updateProfileData(userId, req)
-            return@withTransactionScope Response.ok().build()
-        }
+        userService.updateProfileData(userId, req)
+        return Response.ok().build()
     }
 
     @Authenticated
@@ -94,7 +92,7 @@ class UserResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun putProfileAvatar(@FormParam("avatar") @Schema(implementation = UploadItemSchema::class) avatar: FileUpload, @Context token: JsonWebToken): Response  {
+    fun putProfileAvatar(@FormParam("avatar") @Schema(implementation = UploadItemSchema::class) avatar: FileUpload, @Context token: JsonWebToken): Response  {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
         if (!avatar.contentType().startsWith("image/")) {
@@ -108,10 +106,8 @@ class UserResource(
                 .build()
         }
 
-        return withTransactionScope(dslSD) {
-            userService.updateUserAvatar(userId, avatar)
-            return@withTransactionScope Response.ok().build()
-        }
+        userService.updateUserAvatar(userId, avatar)
+        return Response.ok().build()
     }
 
     @Authenticated
@@ -137,12 +133,10 @@ class UserResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun getNotificationToken(@Context token: JsonWebToken): Response  {
+    fun getNotificationToken(@Context token: JsonWebToken): Response  {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
-        return withTransactionScope(dslSD) {
-            return@withTransactionScope Response.ok().entity(userService.getNotificationToken(userId)).build()
-        }
+        return Response.ok().entity(userService.getNotificationToken(userId)).build()
     }
 
     @Authenticated
@@ -168,12 +162,10 @@ class UserResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun putNotificationToken(@Context token: JsonWebToken): Response  {
+    fun putNotificationToken(@Context token: JsonWebToken): Response  {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
-        return withTransactionScope(dslSD) {
-            return@withTransactionScope Response.ok().entity(userService.regenerateNotificationToken(userId)).build()
-        }
+        return Response.ok().entity(userService.regenerateNotificationToken(userId)).build()
     }
 
     @Authenticated
@@ -194,7 +186,7 @@ class UserResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun getDonationData(@Context token: JsonWebToken): Response {
+    fun getDonationData(@Context token: JsonWebToken): Response {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
         return Response.ok().entity(userService.getDonationData(userId)).build()
@@ -216,13 +208,11 @@ class UserResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun updateDonationData(@Valid @RequestBody req: UpdateDonationProfileDataRequest, @Context token: JsonWebToken): Response {
+    fun updateDonationData(@Valid @RequestBody req: UpdateDonationProfileDataRequest, @Context token: JsonWebToken): Response {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
-        return withTransactionScope(dslSD) {
-            userService.updateDonationData(userId, req)
-            return@withTransactionScope Response.ok().build()
-        }
+        userService.updateDonationData(userId, req)
+        return Response.ok().build()
     }
 
     @Authenticated
@@ -241,13 +231,11 @@ class UserResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun updateXMRData(@Valid @RequestBody req: UpdateXMRDataRequest, @Context token: JsonWebToken): Response {
+    fun updateXMRData(@Valid @RequestBody req: UpdateXMRDataRequest, @Context token: JsonWebToken): Response {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
-        return withTransactionScope(dslSD) {
-            userService.updateXMRData(userId, req)
-            return@withTransactionScope Response.ok().build()
-        }
+        userService.updateXMRData(userId, req)
+        return Response.ok().build()
     }
 
     @Authenticated
@@ -267,7 +255,7 @@ class UserResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun getRegionalSettings(@Context token: JsonWebToken): Response {
+    fun getRegionalSettings(@Context token: JsonWebToken): Response {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
         return Response.ok().entity(userService.getRegionalSettings(userId)).build()
@@ -289,12 +277,10 @@ class UserResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun putRegionalSettings(@Valid @RequestBody req: RegionalProfileDataRequest, @Context token: JsonWebToken): Response {
+    fun putRegionalSettings(@Valid @RequestBody req: RegionalProfileDataRequest, @Context token: JsonWebToken): Response {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
-        return withTransactionScope(dslSD) {
-            userService.updateRegionalSettings(userId, req)
-            return@withTransactionScope Response.ok().build()
-        }
+        userService.updateRegionalSettings(userId, req)
+        return Response.ok().build()
     }
 }

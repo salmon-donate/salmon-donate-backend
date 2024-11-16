@@ -41,7 +41,7 @@ class DonationNotificationService(
         }
     }
 
-    private suspend fun onNewConfirmedInvoice(invoice: InvoiceOuterClass.Invoice) = withContext(Dispatchers.VT) {
+    private fun onNewConfirmedInvoice(invoice: InvoiceOuterClass.Invoice) {
         val invoiceId = UUID.fromString(invoice.id)
 
         val donationRec = dslSD
@@ -52,13 +52,13 @@ class DonationNotificationService(
             .fetchOne()
         val (from, message, userId) = donationRec?.let {
             Triple(it[DONATIONS.FROM], it[DONATIONS.MESSAGE], it[DONATIONS.USER_ID])
-        } ?: return@withContext
-        if (from == null || userId == null) return@withContext
+        } ?: return
+        if (from == null || userId == null) return
 
         broadcastDonation(userId, DonationDTO(from, message, invoice.actualAmount, invoice.coin.toCoinTypeJooq()))
     }
 
-    private suspend fun broadcastDonation(userId: UUID, donation: DonationDTO) {
+    private fun broadcastDonation(userId: UUID, donation: DonationDTO) {
         val connections = sseConnections[userId] ?: return
 
         try {
@@ -67,16 +67,16 @@ class DonationNotificationService(
                     DonationNotificationName.NEW_DONATION.sseName,
                     objectMapper.writeValueAsString(donation)
                 )
-            ).await()
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     @Scheduled(every = "30s")
-    protected suspend fun pingConnections(): Unit = withContext(Dispatchers.VT) {
+    protected fun pingConnections() = runBlocking {
         sseConnections.map { (id, connections) ->
-            async {
+            launch(Dispatchers.VT) {
                 try {
                     connections.broadcast(
                         sse.newEvent(
@@ -89,10 +89,10 @@ class DonationNotificationService(
                     e.printStackTrace()
                 }
             }
-        }.awaitAll()
+        }.joinAll()
     }
 
-    suspend fun sendTestDonation(userId: UUID) = withContext(Dispatchers.VT) {
+    fun sendTestDonation(userId: UUID) {
         broadcastDonation(userId, DonationDTO(
             from = "username",
             message = "Lorem ipsum dolor sit amet. Rem minima consequuntur 33 optio quia qui alias aliquid qui nemo provident? Qui voluptas fugit qui cumque similique non iure voluptas ad voluptates quam. Et rerum debitis id blanditiis quia in explicabo vero aut sint consequatur in maiores saepe sed vitae iure.",
@@ -101,7 +101,7 @@ class DonationNotificationService(
         ))
     }
 
-    suspend fun registerDonationSse(userId: UUID, sink: SseEventSink) {
+    fun registerDonationSse(userId: UUID, sink: SseEventSink) {
         sseConnections.getOrPut(userId, {SseBroadcasterImpl()}).register(sink)
     }
 
