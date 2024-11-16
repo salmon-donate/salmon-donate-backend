@@ -4,19 +4,18 @@ import io.quarkus.rest.client.reactive.ReactiveClientHeadersFactory
 import io.smallrye.mutiny.Uni
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.core.MultivaluedMap
+import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 
 @ApplicationScoped
 class KeycloakAdminApiHeaderFactory(
     private val keycloakAdminTokenService: KeycloakAdminTokenService
-) : ReactiveClientHeadersFactory() {
+) : ClientHeadersFactory {
 
-    override fun getHeaders(
+    override fun update(
         incomingHeaders: MultivaluedMap<String, String>,
         clientOutgoingHeaders: MultivaluedMap<String, String>
-    ): Uni<MultivaluedMap<String, String>> {
-        return Uni.createFrom().item {
-            clientOutgoingHeaders.add("Authorization", "Bearer ${keycloakAdminTokenService.getToken()}")
-            return@item clientOutgoingHeaders
-        }
+    ): MultivaluedMap<String, String> {
+        clientOutgoingHeaders.add("Authorization", "Bearer ${keycloakAdminTokenService.getToken()}")
+        return clientOutgoingHeaders
     }
 }

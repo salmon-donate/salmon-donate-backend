@@ -41,7 +41,7 @@ class StatsResource(
             APIResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    suspend fun getDonationStatsByPeriod(@QueryParam("period") period: StatsPeriod = StatsPeriod.MONTH, @Context token: JsonWebToken): Response {
+    fun getDonationStatsByPeriod(@QueryParam("period") period: StatsPeriod = StatsPeriod.MONTH, @Context token: JsonWebToken): Response {
         val userId = parseUserIdOrThrowBadRequest(token.subject)
 
         return Response.ok().entity(statsService.getDonationStatsByUserIdAndPeriod(userId, period)).build()

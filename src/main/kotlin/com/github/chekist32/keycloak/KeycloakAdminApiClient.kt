@@ -11,7 +11,7 @@ import org.keycloak.representations.idm.UserRepresentation
 interface KeycloakAdminApiClient {
     @GET
     @Path("/admin/realms/{realm}/users")
-    suspend fun getUsersByUsername(
+    fun getUsersByUsername(
         @PathParam("realm") realm: String,
         @QueryParam("username") username: String,
         @QueryParam("exact") exact: Boolean
@@ -19,14 +19,14 @@ interface KeycloakAdminApiClient {
 
     @GET
     @Path("/admin/realms/{realm}/users/{id}")
-    suspend fun getUserById(
+    fun getUserById(
         @PathParam("realm") realm: String,
         @PathParam("id") userId: String
     ): UserRepresentation
 
     @PUT
     @Path("/admin/realms/{realm}/users/{id}")
-    suspend fun updateUser(
+    fun updateUser(
         @PathParam("realm") realm: String,
         @PathParam("id") userId: String,
         userRepresentation: UserRepresentation

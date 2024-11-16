@@ -5,6 +5,7 @@ import com.github.chekist32.jooq.sd.enums.ConfirmationType
 import com.github.chekist32.toCoinTypeJooq
 import crypto.v1.Crypto
 import invoice.v1.InvoiceOuterClass
+import invoice.v1.InvoiceServiceGrpc
 import invoice.v1.MutinyInvoiceServiceGrpc
 import io.quarkus.grpc.GrpcClient
 import io.smallrye.mutiny.coroutines.awaitSuspending
@@ -15,10 +16,10 @@ import java.util.*
 @ApplicationScoped
 class PaymentService(
     @GrpcClient("goipay")
-    private val paymentGoipayGrpcClient: MutinyInvoiceServiceGrpc.MutinyInvoiceServiceStub,
+    private val paymentGoipayGrpcClient: InvoiceServiceGrpc.InvoiceServiceBlockingStub,
     private val converter: CryptoCurrencyConverter
 ) {
-    private suspend fun confirmations(coin: Crypto.CoinType, confirmationType: ConfirmationType     ): UShort {
+    private fun confirmations(coin: Crypto.CoinType, confirmationType: ConfirmationType): UShort {
         val invalidCoinEx = IllegalArgumentException("Invalid coin type")
 
         return when(confirmationType) {
@@ -42,7 +43,7 @@ class PaymentService(
         }
     }
 
-    suspend fun createCryptoPayment(request: NewCryptoPaymentRequest): InvoiceToPayDTO {
+    fun createCryptoPayment(request: NewCryptoPaymentRequest): InvoiceToPayDTO {
         val invReq = InvoiceOuterClass.CreateInvoiceRequest
             .newBuilder()
             .setUserId(request.goipayUserId.toString())
@@ -52,7 +53,7 @@ class PaymentService(
             .setTimeout(request.timeout.toLong())
             .build()
 
-        val res = paymentGoipayGrpcClient.createInvoice(invReq).awaitSuspending()
+        val res = paymentGoipayGrpcClient.createInvoice(invReq)
 
        return InvoiceToPayDTO(
            paymentId = res.paymentId,
@@ -64,8 +65,8 @@ class PaymentService(
        )
     }
 
-    suspend fun getPaymentByPaymentId(paymentId: UUID): InvoiceOuterClass.Invoice {
-        val res = paymentGoipayGrpcClient.getInvoices(InvoiceOuterClass.GetInvoicesRequest.newBuilder().addPaymentIds(paymentId.toString()).build()).awaitSuspending()
+    fun getPaymentByPaymentId(paymentId: UUID): InvoiceOuterClass.Invoice {
+        val res = paymentGoipayGrpcClient.getInvoices(InvoiceOuterClass.GetInvoicesRequest.newBuilder().addPaymentIds(paymentId.toString()).build())
         if (res.invoicesList.isEmpty()) throw NotFoundException("No payment with such paymentId exists.")
 
         return res.invoicesList.first()

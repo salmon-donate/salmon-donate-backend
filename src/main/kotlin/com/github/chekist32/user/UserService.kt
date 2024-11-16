@@ -16,6 +16,7 @@ import com.github.chekist32.toCoinTypes
 import com.github.chekist32.toCryptoKeysData
 import crypto.v1.Crypto
 import io.minio.MinioAsyncClient
+import io.minio.MinioClient
 import io.minio.UploadObjectArgs
 import io.quarkus.grpc.GrpcClient
 import io.smallrye.mutiny.coroutines.awaitSuspending
@@ -32,6 +33,7 @@ import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import user.v1.MutinyUserServiceGrpc
 import user.v1.User.UpdateCryptoKeysRequest
+import user.v1.UserServiceGrpc
 import java.util.*
 
 @ApplicationScoped
@@ -41,12 +43,12 @@ class UserService(
     @Named("dsl-goipay")
     private val dslGoipay: DSLContext,
     private val keycloakUserService: KeycloakUserService,
-    private val minioClient: MinioAsyncClient,
+    private val minioClient: MinioClient,
     private val minioConfig: MinioConfig,
     @GrpcClient("goipay")
-    private val userGoipayGrpcClient: MutinyUserServiceGrpc.MutinyUserServiceStub,
+    private val userGoipayGrpcClient: UserServiceGrpc.UserServiceBlockingStub,
 ) {
-    private suspend fun getCryptoKeys(userId: UUID): CryptoKeys = withContext(Dispatchers.VT) {
+    private fun getCryptoKeys(userId: UUID): CryptoKeys {
         val keys = dslGoipay.select(XMR_CRYPTO_DATA.PRIV_VIEW_KEY, XMR_CRYPTO_DATA.PUB_SPEND_KEY)
             .from(CRYPTO_DATA)
             .join(XMR_CRYPTO_DATA)
@@ -54,7 +56,7 @@ class UserService(
             .where(CRYPTO_DATA.USER_ID.eq(userId))
             .fetchOne()
         
-        return@withContext CryptoKeys(
+        return CryptoKeys(
             xmr = XmrKeys(
                 priv = keys?.value1() ?: "",
                 pub = keys?.value2() ?: ""
@@ -62,9 +64,7 @@ class UserService(
         )
     } 
     
-    suspend fun registerUser(userId: UUID) = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun registerUser(userId: UUID) {
         dslSD.insertInto(USERS)
             .set(USERS.ID, userId)
             .execute()
@@ -74,9 +74,7 @@ class UserService(
             .execute()
     }
 
-    suspend fun updateDonationData(userId: UUID, newData: UpdateDonationProfileDataRequest): Unit = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun updateDonationData(userId: UUID, newData: UpdateDonationProfileDataRequest) {
         dslSD.update(DONATION_PROFILE_DATA)
             .set(DONATION_PROFILE_DATA.MIN_AMOUNT, newData.minAmount)
             .set(DONATION_PROFILE_DATA.CONFIRMATION_TYPE, newData.confirmationType)
@@ -85,9 +83,7 @@ class UserService(
             .execute()
     }
 
-    private suspend fun isCryptoEnabled(userId: UUID, cryptoType: CryptoType) = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    private fun isCryptoEnabled(userId: UUID, cryptoType: CryptoType): Boolean {
         val (res) = dslSD.selectCount()
             .from(DONATION_PROFILE_DATA)
             .where(
@@ -96,12 +92,10 @@ class UserService(
             )
             .fetchOne() ?: throw InternalServerErrorException()
 
-        return@withContext res > 0
+        return res > 0
     }
 
-    suspend fun updateXMRData(userId: UUID, newData: UpdateXMRDataRequest): Unit = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun updateXMRData(userId: UUID, newData: UpdateXMRDataRequest) {
         if (!newData.enabled) {
             dslSD.update(DONATION_PROFILE_DATA)
                 .set(DONATION_PROFILE_DATA.ENABLED_CRYPTO,
@@ -109,7 +103,7 @@ class UserService(
                 .where(DONATION_PROFILE_DATA.USER_ID.eq(userId))
                 .execute()
 
-            return@withContext
+            return
         }
 
         if (!isCryptoEnabled(userId, CryptoType.XMR)) {
@@ -130,12 +124,10 @@ class UserService(
                         .build()
                 )
                 .build()
-        ).awaitSuspending()
+        )
     }
 
-    suspend fun getDonationData(userId: UUID): DonationProfileDataResponse = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun getDonationData(userId: UUID): DonationProfileDataResponse{
         val (minAmount, minAmountCurrency, timeout, confirmationType, enabledCrypto) = dslSD.select(
             DONATION_PROFILE_DATA.MIN_AMOUNT,
             USERS.CURRENCY,
@@ -153,7 +145,7 @@ class UserService(
 
         val keys = getCryptoKeys(userId)
 
-        return@withContext DonationProfileDataResponse(
+        return DonationProfileDataResponse(
             minAmount = minAmount,
             minAmountCurrency = minAmountCurrency,
             timeout = timeout,
@@ -162,7 +154,7 @@ class UserService(
         )
     }
 
-    suspend fun getDonationDataByUsername(username: String): DonationData {
+    fun getDonationDataByUsername(username: String): DonationData {
         val user = try {
             keycloakUserService.getUserByUsername(username)
         } catch (e: NotFoundException) {
@@ -173,16 +165,12 @@ class UserService(
 
         val userId = UUID.fromString(user.id)
 
-        val (bio, avatarUrl, acceptedCrypto) = withContext(Dispatchers.VT) {
-            val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
-            return@withContext dslSD.select(USERS.BIO, USERS.AVATAR_URL, DONATION_PROFILE_DATA.ENABLED_CRYPTO)
+        val (bio, avatarUrl, acceptedCrypto) = dslSD.select(USERS.BIO, USERS.AVATAR_URL, DONATION_PROFILE_DATA.ENABLED_CRYPTO)
                 .from(USERS)
                 .join(DONATION_PROFILE_DATA)
                 .on(USERS.ID.eq(DONATION_PROFILE_DATA.USER_ID))
                 .where(USERS.ID.eq(userId))
                 .fetchOne() ?: throw InternalServerErrorException()
-        }
         if (acceptedCrypto == null) throw InternalServerErrorException()
 
         val keys = getCryptoKeys(userId)
@@ -194,21 +182,17 @@ class UserService(
         )
     }
 
-    suspend fun getNotificationToken(userId: UUID): UUID = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun getNotificationToken(userId: UUID): UUID {
         val (token) = dslSD.select(DONATION_PROFILE_DATA.NOTIFICATION_TOKEN)
             .from(DONATION_PROFILE_DATA)
             .where(DONATION_PROFILE_DATA.USER_ID.eq(userId))
             .fetchOne() ?: throw InternalServerErrorException()
         if (token == null) throw InternalServerErrorException()
 
-        return@withContext token
+        return token
     }
 
-    suspend fun regenerateNotificationToken(userId: UUID): UUID = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun regenerateNotificationToken(userId: UUID): UUID {
         val newToken = UUID.randomUUID()
 
         dslSD.update(DONATION_PROFILE_DATA)
@@ -216,12 +200,10 @@ class UserService(
             .where(DONATION_PROFILE_DATA.USER_ID.eq(userId))
             .execute()
 
-        return@withContext newToken
+        return newToken
     }
 
-    suspend fun getProfileData(userId: UUID): ProfileDataResponse = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun getProfileData(userId: UUID): ProfileDataResponse {
         val (avatarUrl, bio) = dslSD.select(
             USERS.AVATAR_URL,
             USERS.BIO
@@ -230,13 +212,13 @@ class UserService(
             .where(USERS.ID.eq(userId))
             .fetchOne() ?: throw NotFoundException("There is no user with such userId")
 
-        return@withContext ProfileDataResponse(
+        return ProfileDataResponse(
             avatarUrl = avatarUrl,
             bio = bio
         )
     }
 
-    suspend fun updateProfileData(userId: UUID, newData: ProfileDataUpdateRequest) {
+    fun updateProfileData(userId: UUID, newData: ProfileDataUpdateRequest) {
         val user = keycloakUserService.getUserById(userId.toString())
         if (user != null) {
             user.firstName = newData.firstName
@@ -244,17 +226,14 @@ class UserService(
             keycloakUserService.updateUser(user)
         }
 
-        withContext(Dispatchers.VT) {
-            val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-            val dslReq = dslSD.update(USERS)
+        val dslReq = dslSD.update(USERS)
 
-            dslReq.set(USERS.BIO, newData.bio)
-                .where(USERS.ID.eq(userId))
-                .execute()
-        }
+        dslReq.set(USERS.BIO, newData.bio)
+            .where(USERS.ID.eq(userId))
+            .execute()
     }
 
-    suspend fun updateUserAvatar(userId: UUID, avatarFile: FileUpload) = withContext(Dispatchers.VT) {
+    fun updateUserAvatar(userId: UUID, avatarFile: FileUpload) {
         val contentType = avatarFile.contentType()
         val uri = "public/avatars/${UUID.randomUUID()}.${contentType.split('/').last()}"
 
@@ -265,9 +244,7 @@ class UserService(
                 .filename(avatarFile.uploadedFile().toAbsolutePath().toString())
                 .contentType(contentType)
                 .build()
-        ).await()
-
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
+        )
 
         dslSD.update(USERS)
             .set(USERS.AVATAR_URL, "${minioConfig.baseUrl()}/salmon-donate/$uri")
@@ -275,21 +252,17 @@ class UserService(
             .execute()
     }
 
-    suspend fun getUserIdByNotificationToken(token: UUID) = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun getUserIdByNotificationToken(token: UUID): UUID {
         val (userId) = dslSD.select(DONATION_PROFILE_DATA.USER_ID)
             .from(DONATION_PROFILE_DATA)
             .where(DONATION_PROFILE_DATA.NOTIFICATION_TOKEN.eq(token))
             .fetchOne() ?: throw BadRequestException("Invalid notification token")
         if (userId == null) throw InternalServerErrorException()
 
-        return@withContext userId
+        return userId
     }
 
-    suspend fun getRegionalSettings(userId: UUID): RegionalProfileDataResponse = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun getRegionalSettings(userId: UUID): RegionalProfileDataResponse {
         val (timeZoneName, offset, currency) = dslSD.select(USERS.TIME_ZONE, TIME_ZONES.UTC_OFFSET, USERS.CURRENCY)
             .from(USERS)
             .join(TIME_ZONES)
@@ -305,7 +278,7 @@ class UserService(
             .filter { it.value2() != null && it.value1() != null }
             .map { TimeZone(offset = it.value2()!!.totalMinutes.toInt(), name = it.value1()!!) }
 
-        return@withContext RegionalProfileDataResponse(
+        return RegionalProfileDataResponse(
             timeZone = TimeZone(
                 name = timeZoneName,
                 offset = offset.totalMinutes.toInt()
@@ -315,9 +288,7 @@ class UserService(
         )
     }
 
-    suspend fun updateRegionalSettings(userId: UUID, newData: RegionalProfileDataRequest) = withContext(Dispatchers.VT) {
-        val dslSD = coroutineContext[TransactionalContext]?.transactionalDslContext ?: dslSD
-
+    fun updateRegionalSettings(userId: UUID, newData: RegionalProfileDataRequest) {
         val timeZoneExists = dslSD.fetchExists(
             DSL.selectOne()
                 .from(TIME_ZONES)

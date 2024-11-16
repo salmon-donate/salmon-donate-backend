@@ -21,8 +21,8 @@ class WebHookResource(
     @Path("/keycloak_event_webhook")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    suspend fun handleKeycloakEvent(@RequestBody req: KeycloakEventRequest): Response = withTransactionScope(dslSD) {
+    fun handleKeycloakEvent(@RequestBody req: KeycloakEventRequest): Response {
         webHookHandler.handleKeycloakWebHookEvent(req)
-        return@withTransactionScope Response.ok().build()
+        return Response.ok().build()
     }
 }

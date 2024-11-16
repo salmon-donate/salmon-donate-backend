@@ -2,6 +2,7 @@ package com.github.chekist32.payment
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.chekist32.VT
+import graphql.schema.AsyncDataFetcher.async
 import invoice.v1.InvoiceOuterClass
 import invoice.v1.InvoiceOuterClass.Invoice
 import io.quarkus.scheduler.Scheduled
@@ -53,9 +54,9 @@ class PaymentNotificationService(
     }
 
     @Scheduled(every = "30s")
-    protected suspend fun pingConnections(): Unit = withContext(Dispatchers.VT) {
+    protected fun pingConnections() = runBlocking {
         sseConnections.map { (_, connections) ->
-            async {
+            launch(Dispatchers.VT) {
                 try {
                     connections.broadcast(
                         sse.newEvent(
@@ -68,10 +69,10 @@ class PaymentNotificationService(
                     e.printStackTrace()
                 }
             }
-        }.awaitAll()
+        }.joinAll()
     }
 
-    suspend fun addNewPaymentStatusSee(paymentId: UUID, sink: SseEventSink) {
+    fun addNewPaymentStatusSee(paymentId: UUID, sink: SseEventSink) {
         val invoice = try {
             paymentService.getPaymentByPaymentId(paymentId)
         } catch (e: Exception) {
@@ -80,16 +81,18 @@ class PaymentNotificationService(
         }
 
         if (invoice.status == InvoiceOuterClass.InvoiceStatusType.CONFIRMED || invoice.status == InvoiceOuterClass.InvoiceStatusType.EXPIRED) {
-            sink.use {
-                try {
-                    it.send(
-                        sse.newEvent(
-                            PaymentNotificationName.PAYMENT_CHANGED_STATUS.sseName,
-                            objectMapper.writeValueAsString(invoice.toInvoiceDTO())
-                        )
-                    ).await()
-                } catch (e: Exception) {
-                    e.printStackTrace()
+            runBlocking {
+                sink.use {
+                    try {
+                        it.send(
+                            sse.newEvent(
+                                PaymentNotificationName.PAYMENT_CHANGED_STATUS.sseName,
+                                objectMapper.writeValueAsString(invoice.toInvoiceDTO())
+                            )
+                        ).await()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
             return

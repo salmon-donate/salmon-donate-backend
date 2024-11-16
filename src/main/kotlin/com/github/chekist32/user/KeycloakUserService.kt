@@ -14,7 +14,7 @@ class KeycloakUserService(
     @RestClient
     private val keycloakAdminApiClient: KeycloakAdminApiClient
 ) {
-    suspend fun getUserByUsername(username: String): UserRepresentation {
+    fun getUserByUsername(username: String): UserRepresentation {
         val userList = keycloakAdminApiClient.getUsersByUsername(
             realm = keycloakAdminConfig.realm(),
             username = username,
@@ -23,14 +23,14 @@ class KeycloakUserService(
         return userList.firstOrNull() ?: throw NotFoundException("There is no user with username: $username")
     }
 
-    suspend fun getUserById(userId: String): UserRepresentation? {
+    fun getUserById(userId: String): UserRepresentation? {
         return keycloakAdminApiClient.getUserById(
             realm = keycloakAdminConfig.realm(),
             userId = userId
         )
     }
 
-    suspend fun updateUser(userRepresentation: UserRepresentation) {
+    fun updateUser(userRepresentation: UserRepresentation) {
         keycloakAdminApiClient.updateUser(
             realm = keycloakAdminConfig.realm(),
             userId = userRepresentation.id,
