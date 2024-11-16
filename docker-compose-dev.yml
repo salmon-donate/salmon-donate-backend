@@ -41,7 +41,8 @@ services:
       - XMR_DAEMON_USER=
       - XMR_DAEMON_PASS=
     depends_on:
-      - goipay_db_migrations
+      goipay_db_migrations:
+        condition: service_completed_successfully
     ports:
       - "3000:3000"
 
