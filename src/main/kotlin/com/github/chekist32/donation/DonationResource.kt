@@ -132,10 +132,8 @@ class DonationResource(
             APIResponse(responseCode = "500", description = "Server error while establishing SSE connection")
         ]
     )
-    fun donateSseGet(@Context sink: SseEventSink, @QueryParam("token") notificationToken: UUID): Response {
+    fun donateSseGet(@Context sink: SseEventSink, @QueryParam("token") notificationToken: UUID) {
         donationNotificationService.registerDonationSse(userService.getUserIdByNotificationToken(notificationToken), sink)
-
-        return Response.status(Response.Status.OK).build()
     }
 
     @Authenticated
