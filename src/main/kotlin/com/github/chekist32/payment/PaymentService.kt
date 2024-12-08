@@ -1,23 +1,27 @@
 package com.github.chekist32.payment
 
 import com.github.chekist32.converter.CryptoCurrencyConverter
+import com.github.chekist32.jooq.goipay.tables.records.InvoicesRecord
+import com.github.chekist32.jooq.goipay.tables.references.INVOICES
 import com.github.chekist32.jooq.sd.enums.ConfirmationType
 import com.github.chekist32.toCoinTypeJooq
 import crypto.v1.Crypto
 import invoice.v1.InvoiceOuterClass
 import invoice.v1.InvoiceServiceGrpc
-import invoice.v1.MutinyInvoiceServiceGrpc
 import io.quarkus.grpc.GrpcClient
-import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Named
 import jakarta.ws.rs.NotFoundException
+import org.jooq.DSLContext
 import java.util.*
 
 @ApplicationScoped
 class PaymentService(
     @GrpcClient("goipay")
     private val paymentGoipayGrpcClient: InvoiceServiceGrpc.InvoiceServiceBlockingStub,
-    private val converter: CryptoCurrencyConverter
+    private val converter: CryptoCurrencyConverter,
+    @Named("dsl-goipay")
+    private val dslGoipay: DSLContext
 ) {
     private fun confirmations(coin: Crypto.CoinType, confirmationType: ConfirmationType): UShort {
         val invalidCoinEx = IllegalArgumentException("Invalid coin type")
@@ -65,10 +69,13 @@ class PaymentService(
        )
     }
 
-    fun getPaymentByPaymentId(paymentId: UUID): InvoiceOuterClass.Invoice {
-        val res = paymentGoipayGrpcClient.getInvoices(InvoiceOuterClass.GetInvoicesRequest.newBuilder().addPaymentIds(paymentId.toString()).build())
-        if (res.invoicesList.isEmpty()) throw NotFoundException("No payment with such paymentId exists.")
+    fun getPaymentByPaymentId(paymentId: UUID): InvoicesRecord {
+        val record = dslGoipay.select()
+            .from(INVOICES)
+            .where(INVOICES.ID.eq(paymentId))
+            .fetchOne() ?: throw NotFoundException("No payment with such paymentId exists.")
+        val paymentRecord = record.into(InvoicesRecord::class.java)
 
-        return res.invoicesList.first()
+        return paymentRecord
     }
 }
