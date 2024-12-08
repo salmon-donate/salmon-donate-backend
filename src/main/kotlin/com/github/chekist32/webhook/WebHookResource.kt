@@ -1,6 +1,5 @@
 package com.github.chekist32.webhook
 
-import com.github.chekist32.withTransactionScope
 import jakarta.inject.Named
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.POST

@@ -1,7 +1,6 @@
 package com.github.chekist32.user
 
 import com.github.chekist32.parseUserIdOrThrowBadRequest
-import com.github.chekist32.withTransactionScope
 import io.quarkus.security.Authenticated
 import jakarta.inject.Named
 import jakarta.validation.Valid

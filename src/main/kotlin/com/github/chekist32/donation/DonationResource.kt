@@ -3,7 +3,6 @@ package com.github.chekist32.donation
 import com.github.chekist32.parseUserIdOrThrowBadRequest
 import com.github.chekist32.payment.InvoiceToPayDTO
 import com.github.chekist32.user.UserService
-import com.github.chekist32.withTransactionScope
 import io.quarkus.runtime.annotations.RegisterForReflection
 import io.quarkus.security.Authenticated
 import jakarta.inject.Named

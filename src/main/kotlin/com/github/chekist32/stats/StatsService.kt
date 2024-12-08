@@ -1,6 +1,5 @@
 package com.github.chekist32.stats
 
-import com.github.chekist32.VT
 import com.github.chekist32.base.dto.Quadruple
 import com.github.chekist32.converter.CryptoCurrencyConverter
 import com.github.chekist32.donation.DonationDTOForReceiver
@@ -11,8 +10,6 @@ import com.github.chekist32.jooq.sd.tables.references.USERS
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Named
 import jakarta.ws.rs.InternalServerErrorException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.jooq.DSLContext
 import java.time.LocalTime
 import java.time.OffsetDateTime
