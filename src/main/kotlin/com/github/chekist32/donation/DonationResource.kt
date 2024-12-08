@@ -5,7 +5,7 @@ import com.github.chekist32.payment.InvoiceToPayDTO
 import com.github.chekist32.user.UserService
 import io.quarkus.runtime.annotations.RegisterForReflection
 import io.quarkus.security.Authenticated
-import jakarta.inject.Named
+import jakarta.transaction.Transactional
 import jakarta.validation.Valid
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.Context
@@ -22,7 +22,6 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses
 import org.jboss.resteasy.reactive.RestStreamElementType
-import org.jooq.DSLContext
 import java.util.*
 
 @Path("/api/v1/donation")
@@ -30,9 +29,7 @@ import java.util.*
 class DonationResource(
     private val donationService: DonationService,
     private val donationNotificationService: DonationNotificationService,
-    private val userService: UserService,
-    @Named("dsl-sd")
-    private val dslSD: DSLContext
+    private val userService: UserService
 ) {
 
     @Authenticated
@@ -84,6 +81,7 @@ class DonationResource(
         return Response.status(Response.Status.OK).entity(donationData).build()
     }
 
+    @Transactional
     @POST
     @Path("/donate/{username}")
     @Produces(MediaType.APPLICATION_JSON)

@@ -2,7 +2,7 @@ package com.github.chekist32.user
 
 import com.github.chekist32.parseUserIdOrThrowBadRequest
 import io.quarkus.security.Authenticated
-import jakarta.inject.Named
+import jakarta.transaction.Transactional
 import jakarta.validation.Valid
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.Context
@@ -17,14 +17,11 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses
 import org.jboss.resteasy.reactive.multipart.FileUpload
-import org.jooq.DSLContext
 
 
 @Path("/api/v1/user")
 class UserResource(
-    private val userService: UserService,
-    @Named("dsl-sd")
-    private val dslSD: DSLContext
+    private val userService: UserService
 ) {
 
     @Schema(type = SchemaType.STRING, format = "binary")
@@ -52,6 +49,7 @@ class UserResource(
         return Response.ok().entity(userService.getProfileData(userId)).build()
     }
 
+    @Transactional
     @Authenticated
     @PUT
     @Path("/profile")
@@ -75,6 +73,7 @@ class UserResource(
         return Response.ok().build()
     }
 
+    @Transactional
     @Authenticated
     @PUT
     @Path("/profile/avatar")
@@ -138,6 +137,7 @@ class UserResource(
         return Response.ok().entity(userService.getNotificationToken(userId)).build()
     }
 
+    @Transactional
     @Authenticated
     @PUT
     @Path("/profile/notification")
@@ -191,6 +191,7 @@ class UserResource(
         return Response.ok().entity(userService.getDonationData(userId)).build()
     }
 
+    @Transactional
     @Authenticated
     @PUT
     @Path("/profile/donation_data")
@@ -214,6 +215,7 @@ class UserResource(
         return Response.ok().build()
     }
 
+    @Transactional
     @Authenticated
     @PUT
     @Path("/profile/donation_data/xmr")
@@ -260,6 +262,7 @@ class UserResource(
         return Response.ok().entity(userService.getRegionalSettings(userId)).build()
     }
 
+    @Transactional
     @Authenticated
     @PUT
     @Path("/profile/regional")
