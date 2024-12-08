@@ -1,4 +1,4 @@
 [submodule "external/goipay"]
 	path = external/goipay
-	url = https://github.com/chekist32/goipay.git
-	branch = v0.2.0
+	url = https://github.com/goipay/goipay
+	branch = v0.4.0
