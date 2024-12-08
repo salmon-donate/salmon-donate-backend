@@ -13,46 +13,18 @@ import invoice.v1.InvoiceOuterClass
 import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.InternalServerErrorException
 import jakarta.ws.rs.container.ContainerRequestContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.withContext
-import org.jooq.DSLContext
-import org.jooq.impl.DSL
-import org.jooq.kotlin.coroutines.transactionCoroutine
 import java.io.ByteArrayInputStream
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
 import java.util.concurrent.Executors
-import kotlin.coroutines.AbstractCoroutineContextElement
-import kotlin.coroutines.CoroutineContext
 
 
 private val virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor()
 val Dispatchers.VT
     get() = virtualThreadExecutor.asCoroutineDispatcher()
-
-class TransactionalContext(val transactionalDslContext: DSLContext) : AbstractCoroutineContextElement(Key) {
-    companion object Key : CoroutineContext.Key<TransactionalContext>
-}
-suspend fun <T> withTransactionScope(
-    dsl: DSLContext,
-    classLoader: ClassLoader = Thread.currentThread().contextClassLoader,
-    block: suspend CoroutineScope.() -> T
-): T {
-    return dsl.transactionCoroutine { configuration ->
-        val transactionalDslContext = DSL.using(configuration)
-
-        val transactionalContext = TransactionalContext(transactionalDslContext)
-
-        withContext(transactionalContext) {
-            // Issues - https://github.com/quarkusio/quarkus/issues/42219, https://github.com/quarkusio/quarkus/issues/40245
-            Thread.currentThread().contextClassLoader = classLoader
-            block(this)
-        }
-    }
-}
 
 fun ContainerRequestContext.getBodyWithoutModifying(): ByteArray {
     val body = entityStream.readAllBytes()
@@ -86,7 +58,7 @@ fun CryptoKeys.toCryptoKeysData(enabledCrypto: Set<CryptoType>): CryptoKeysData 
 }
 
 fun CryptoKeys.toCoinTypes(enabledCrypto: Set<CryptoType>): Set<CryptoType> {
-    val coinTypes = EnumSet.noneOf(CryptoType::class.java);
+    val coinTypes = EnumSet.noneOf(CryptoType::class.java)
     if (enabledCrypto.contains(CryptoType.XMR) && xmr.priv.isNotBlank() && xmr.pub.isNotBlank()) {
         coinTypes.add(CryptoType.XMR)
     }
@@ -94,7 +66,7 @@ fun CryptoKeys.toCoinTypes(enabledCrypto: Set<CryptoType>): Set<CryptoType> {
     return coinTypes
 }
 
-fun invoice.v1.InvoiceOuterClass.InvoiceStatusType.toInvoiceStatusTypeJooq(): InvoiceStatusType {
+fun InvoiceOuterClass.InvoiceStatusType.toInvoiceStatusTypeJooq(): InvoiceStatusType {
     return when (this) {
         InvoiceOuterClass.InvoiceStatusType.PENDING -> InvoiceStatusType.PENDING
         InvoiceOuterClass.InvoiceStatusType.PENDING_MEMPOOL -> InvoiceStatusType.PENDING_MEMPOOL
@@ -104,7 +76,7 @@ fun invoice.v1.InvoiceOuterClass.InvoiceStatusType.toInvoiceStatusTypeJooq(): In
     }
 }
 
-fun crypto.v1.Crypto.CoinType.toCoinTypeJooq(): CoinType {
+fun Crypto.CoinType.toCoinTypeJooq(): CoinType {
     return when (this) {
         Crypto.CoinType.XMR -> CoinType.XMR
         Crypto.CoinType.BTC -> CoinType.BTC

@@ -1,7 +1,5 @@
 package com.github.chekist32.donation
 
-import com.github.chekist32.TransactionalContext
-import com.github.chekist32.VT
 import com.github.chekist32.jooq.goipay.tables.references.INVOICES
 import com.github.chekist32.jooq.sd.tables.references.DONATIONS
 import com.github.chekist32.jooq.sd.tables.references.DONATION_PROFILE_DATA
@@ -15,12 +13,9 @@ import com.github.chekist32.user.KeycloakUserService
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Named
 import jakarta.ws.rs.InternalServerErrorException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.jooq.DSLContext
 import java.time.ZoneOffset
 import java.util.*
-import kotlin.coroutines.coroutineContext
 
 @ApplicationScoped
 class DonationService(

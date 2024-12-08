@@ -4,10 +4,8 @@ import com.github.chekist32.VT
 import invoice.v1.InvoiceOuterClass
 import invoice.v1.InvoiceOuterClass.Invoice
 import invoice.v1.InvoiceServiceGrpc
-import invoice.v1.MutinyInvoiceServiceGrpc
 import io.quarkus.grpc.GrpcClient
 import io.quarkus.runtime.Startup
-import io.smallrye.mutiny.coroutines.asFlow
 import jakarta.enterprise.context.ApplicationScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

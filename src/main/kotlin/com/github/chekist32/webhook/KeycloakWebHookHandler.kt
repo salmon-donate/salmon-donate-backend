@@ -2,10 +2,8 @@ package com.github.chekist32.webhook
 
 import com.github.chekist32.user.UserService
 import io.quarkus.grpc.GrpcClient
-import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.BadRequestException
-import user.v1.MutinyUserServiceGrpc
 import user.v1.User
 import user.v1.UserServiceGrpc
 

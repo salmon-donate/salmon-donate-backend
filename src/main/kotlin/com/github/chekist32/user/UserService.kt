@@ -1,7 +1,5 @@
 package com.github.chekist32.user
 
-import com.github.chekist32.TransactionalContext
-import com.github.chekist32.VT
 import com.github.chekist32.base.config.MinioConfig
 import com.github.chekist32.base.config.baseUrl
 import com.github.chekist32.donation.DonationData
@@ -15,23 +13,17 @@ import com.github.chekist32.jooq.sd.tables.references.USERS
 import com.github.chekist32.toCoinTypes
 import com.github.chekist32.toCryptoKeysData
 import crypto.v1.Crypto
-import io.minio.MinioAsyncClient
 import io.minio.MinioClient
 import io.minio.UploadObjectArgs
 import io.quarkus.grpc.GrpcClient
-import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Named
 import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.InternalServerErrorException
 import jakarta.ws.rs.NotFoundException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.withContext
 import org.jboss.resteasy.reactive.multipart.FileUpload
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
-import user.v1.MutinyUserServiceGrpc
 import user.v1.User.UpdateCryptoKeysRequest
 import user.v1.UserServiceGrpc
 import java.util.*

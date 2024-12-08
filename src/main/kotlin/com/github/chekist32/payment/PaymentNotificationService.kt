@@ -2,7 +2,7 @@ package com.github.chekist32.payment
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.chekist32.VT
-import graphql.schema.AsyncDataFetcher.async
+import com.github.chekist32.jooq.goipay.enums.InvoiceStatusType
 import invoice.v1.InvoiceOuterClass
 import invoice.v1.InvoiceOuterClass.Invoice
 import io.quarkus.scheduler.Scheduled
@@ -80,7 +80,7 @@ class PaymentNotificationService(
             throw e
         }
 
-        if (invoice.status == InvoiceOuterClass.InvoiceStatusType.CONFIRMED || invoice.status == InvoiceOuterClass.InvoiceStatusType.EXPIRED) {
+        if (invoice.status == InvoiceStatusType.CONFIRMED || invoice.status == InvoiceStatusType.EXPIRED) {
             runBlocking {
                 sink.use {
                     try {
