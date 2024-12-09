@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: postgres
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres -d goipay_db" ]
-      interval: 2s
+      interval: 10s
       timeout: 5s
       retries: 5
     ports:
@@ -56,7 +56,7 @@ services:
       POSTGRES_PASSWORD: postgres
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres -d salmon_donate_backend" ]
-      interval: 2s
+      interval: 10s
       timeout: 5s
       retries: 5
     ports:
