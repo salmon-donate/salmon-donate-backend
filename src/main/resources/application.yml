@@ -76,9 +76,5 @@ quarkus:
         host: ${GOIPAY_HOST}
         port: ${GOIPAY_PORT}
 
-  rest-client:
-    keycloak-admin-api:
-      url: ${SD_KEYCLOAK_BASE_URL}
-
 keycloak-webhook:
   secret: ${SD_KEYCLOAK_WEBHOOK_SECRET}
