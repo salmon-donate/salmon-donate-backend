@@ -33,12 +33,9 @@ class DonationNotificationService(
 ) {
     private val sseConnections = ConcurrentHashMap<UUID, SseBroadcaster>()
 
-    @OptIn(DelicateCoroutinesApi::class)
     @PostConstruct
     protected fun init() {
-        GlobalScope.launch {
-            paymentNotificationService.subscribeToInvoice({ it.status == InvoiceOuterClass.InvoiceStatusType.CONFIRMED }, ::onNewConfirmedInvoice)
-        }
+        paymentNotificationService.subscribeToInvoice({ it.status == InvoiceOuterClass.InvoiceStatusType.CONFIRMED }, ::onNewConfirmedInvoice)
     }
 
     private fun onNewConfirmedInvoice(invoice: InvoiceOuterClass.Invoice) {
