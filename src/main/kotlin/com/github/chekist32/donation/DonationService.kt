@@ -13,6 +13,7 @@ import com.github.chekist32.user.KeycloakUserService
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Named
 import jakarta.ws.rs.InternalServerErrorException
+import jakarta.ws.rs.NotFoundException
 import org.jooq.DSLContext
 import java.time.ZoneOffset
 import java.util.*
@@ -58,14 +59,15 @@ class DonationService(
         val payments = dslGoipay.select(INVOICES.ID, INVOICES.ACTUAL_AMOUNT, INVOICES.COIN)
             .from(INVOICES)
             .where(INVOICES.ID.`in`(donations.mapNotNull { it.value4() }))
+            .orderBy(INVOICES.CONFIRMED_AT.desc())
             .fetch()
 
         return DonationDTOForReceiverResponse(
             page = page,
             limit = limit,
             totalCount = totalCount,
-            data = donations.flatMap { d ->
-                payments.filter { p -> p.value1() == d.value4() }.map { p ->
+            data = donations.mapNotNull { d ->
+                payments.find { p -> p.value1() == d.value4() }?.let { p ->
                     val (from, message, shownAt) = d
                     val (_, actualAmount, coin) = p
                     if (shownAt == null || actualAmount == null || coin == null) throw InternalServerErrorException()
@@ -88,6 +90,8 @@ class DonationService(
         val userId = try {
             val user = keycloakUserService.getUserByUsername(username)
             UUID.fromString(user.id)
+        } catch (e: NotFoundException) {
+            throw e
         } catch (e: Exception) {
             throw InternalServerErrorException()
         }
