@@ -8,6 +8,7 @@ import com.github.chekist32.jooq.sd.tables.references.DONATIONS
 import com.github.chekist32.jooq.sd.tables.references.DONATION_PROFILE_DATA
 import com.github.chekist32.jooq.sd.tables.references.USERS
 import com.github.chekist32.user.CryptoKeysData
+import com.github.chekist32.user.XmrKeys
 import crypto.v1.Crypto
 import dasniko.testcontainers.keycloak.KeycloakContainer
 import invoice.v1.InvoiceServiceGrpc
@@ -89,6 +90,11 @@ abstract class BasicIntegrationTest {
         private val realmConfig = Files.readString(Paths.get("keycloak/realms/realm-export.json"))
         private val baseKeycloakUrl = getEnvOrThrow("SD_KEYCLOAK_BASE_URL")
         val realmName = getEnvOrThrow("SD_KEYCLOAK_REALM")
+
+        val testXmrKeys = XmrKeys(
+            priv = "8aa763d1c8d9da4ca75cb6ca22a021b5cca376c1367be8d62bcc9cdf4b926009",
+            pub = "38e9908d33d034de0ba1281aa7afe3907b795cea14852b3d8fe276e8931cb130"
+        )
     }
 
     @PostConstruct
@@ -216,7 +222,7 @@ abstract class BasicIntegrationTest {
         resetMinio()
     }
 
-    private fun registerKeycloakUser(testUser: TestUser): UUID {
+    fun registerKeycloakUser(testUser: TestUser): UUID {
         val res = keycloakAdminClient.realm(realmName).users().create(UserRepresentation().also { user ->
             user.username = testUser.username
             user.email = testUser.email
