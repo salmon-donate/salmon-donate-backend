@@ -23,25 +23,25 @@ class PaymentService(
     @Named("dsl-goipay")
     private val dslGoipay: DSLContext
 ) {
-    private fun confirmations(coin: Crypto.CoinType, confirmationType: ConfirmationType): UShort {
+    private fun confirmations(coin: Crypto.CoinType, confirmationType: ConfirmationType): Short {
         val invalidCoinEx = IllegalArgumentException("Invalid coin type")
 
         return when(confirmationType) {
-            ConfirmationType.UNCONFIRMED -> 0u
+            ConfirmationType.UNCONFIRMED -> 0
             ConfirmationType.PARTIALLY_CONFIRMED -> when(coin) {
-                Crypto.CoinType.XMR -> 1u
-                Crypto.CoinType.BTC -> 1u
-                Crypto.CoinType.LTC -> 1u
-                Crypto.CoinType.ETH -> 1u
-                Crypto.CoinType.TON -> 1u
+                Crypto.CoinType.XMR -> 1
+                Crypto.CoinType.BTC -> 1
+                Crypto.CoinType.LTC -> 1
+                Crypto.CoinType.ETH -> 1
+                Crypto.CoinType.TON -> 1
                 Crypto.CoinType.UNRECOGNIZED -> throw invalidCoinEx
             }
             ConfirmationType.CONFIRMED -> when(coin) {
-                Crypto.CoinType.XMR -> 10u
-                Crypto.CoinType.BTC -> 3u
-                Crypto.CoinType.LTC -> 6u
-                Crypto.CoinType.ETH -> 10u
-                Crypto.CoinType.TON -> 10u
+                Crypto.CoinType.XMR -> 10
+                Crypto.CoinType.BTC -> 3
+                Crypto.CoinType.LTC -> 6
+                Crypto.CoinType.ETH -> 10
+                Crypto.CoinType.TON -> 10
                 Crypto.CoinType.UNRECOGNIZED -> throw invalidCoinEx
             }
         }
