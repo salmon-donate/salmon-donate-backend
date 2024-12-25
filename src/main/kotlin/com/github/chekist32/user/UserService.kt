@@ -212,11 +212,9 @@ class UserService(
 
     fun updateProfileData(userId: UUID, newData: ProfileDataUpdateRequest) {
         val user = keycloakUserService.getUserById(userId.toString())
-        if (user != null) {
-            user.firstName = newData.firstName
-            user.lastName = newData.lastName
-            keycloakUserService.updateUser(user)
-        }
+        user.firstName = newData.firstName
+        user.lastName = newData.lastName
+        keycloakUserService.updateUser(user)
 
         val dslReq = dslSD.update(USERS)
 

@@ -17,8 +17,8 @@ class KeycloakUserService(
         return userList.firstOrNull() ?: throw NotFoundException("There is no user with username: $username")
     }
 
-    fun getUserById(userId: String): UserRepresentation? {
-       return keycloakAdminClient.realm(keycloakAdminConfig.realm()).users().get(userId).toRepresentation()
+    fun getUserById(userId: String): UserRepresentation {
+        return keycloakAdminClient.realm(keycloakAdminConfig.realm()).users().get(userId).toRepresentation()
     }
 
     fun updateUser(userRepresentation: UserRepresentation) {
