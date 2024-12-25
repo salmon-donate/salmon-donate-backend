@@ -14,8 +14,11 @@ import jakarta.inject.Named
 import jakarta.ws.rs.sse.Sse
 import jakarta.ws.rs.sse.SseBroadcaster
 import jakarta.ws.rs.sse.SseEventSink
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.jboss.resteasy.reactive.server.jaxrs.SseBroadcasterImpl
 import org.jooq.DSLContext
 import java.time.OffsetDateTime
