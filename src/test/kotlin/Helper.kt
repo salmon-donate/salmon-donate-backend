@@ -7,6 +7,7 @@ import com.github.chekist32.jooq.sd.enums.CryptoType
 import com.github.chekist32.jooq.sd.tables.references.DONATIONS
 import com.github.chekist32.jooq.sd.tables.references.DONATION_PROFILE_DATA
 import com.github.chekist32.jooq.sd.tables.references.USERS
+import com.github.chekist32.payment.PaymentGrpcNotificationService
 import com.github.chekist32.user.CryptoKeysData
 import com.github.chekist32.user.XmrKeys
 import crypto.v1.Crypto
@@ -75,6 +76,7 @@ abstract class BasicIntegrationTest {
     @field:Inject
     @field:GrpcClient("goipay")
     protected lateinit var paymentGoipayGrpcClient: InvoiceServiceGrpc.InvoiceServiceBlockingStub
+    protected lateinit var paymentGrpcNotificationService: PaymentGrpcNotificationService
 
     private lateinit var goipayContainer: GenericContainer<*>
     private lateinit var grpcChannel: ManagedChannel
@@ -171,14 +173,25 @@ abstract class BasicIntegrationTest {
         )
     }
 
+    private fun setupGrpcGoipay() {
+        val channelField = AbstractStub::class.java.getDeclaredField("channel")
+        channelField.isAccessible = true
+        channelField.set(userGoipayGrpcClient, grpcChannel)
+        channelField.set(paymentGoipayGrpcClient, grpcChannel)
+    }
+
+    private fun setupGrpcNotificationService() {
+        paymentGrpcNotificationService = PaymentGrpcNotificationService(paymentGoipayGrpcClient)
+    }
+
+    private fun setupGrpc() {
+        setupGrpcGoipay()
+        setupGrpcNotificationService()
+    }
+
     @BeforeEach
     protected fun setup() {
-        val field = AbstractStub::class.java.getDeclaredField("channel")
-        field.isAccessible = true
-
-        field.set(userGoipayGrpcClient, grpcChannel)
-        field.set(paymentGoipayGrpcClient, grpcChannel)
-
+        setupGrpc()
         setupKeycloak()
         setupMinio()
     }
