@@ -37,7 +37,7 @@ class DonationNotificationService(
     @PostConstruct
     protected fun init() {
         GlobalScope.launch {
-            paymentNotificationService.subscribeToInvoiceByStatus(::onNewConfirmedInvoice, InvoiceOuterClass.InvoiceStatusType.CONFIRMED)
+            paymentNotificationService.subscribeToInvoice({ it.status == InvoiceOuterClass.InvoiceStatusType.CONFIRMED }, ::onNewConfirmedInvoice)
         }
     }
 

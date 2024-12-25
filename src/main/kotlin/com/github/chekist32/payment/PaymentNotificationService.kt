@@ -30,7 +30,7 @@ class PaymentNotificationService(
     @PostConstruct
     protected fun init() {
         GlobalScope.launch {
-            paymentGrpcNotificationService.subscribeToInvoice(::onNewInvoice)
+            paymentGrpcNotificationService.subscribeToInvoice { onNewInvoice(it) }
         }
     }
 
