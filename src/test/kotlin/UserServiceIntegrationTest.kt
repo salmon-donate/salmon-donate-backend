@@ -209,10 +209,7 @@ class UserServiceIntegrationTest: BasicIntegrationTest() {
 
         val newData = UpdateXMRDataRequest(
             enabled = true,
-            keys = XmrKeys(
-                priv = "8aa763d1c8d9da4ca75cb6ca22a021b5cca376c1367be8d62bcc9cdf4b926009",
-                pub = "38e9908d33d034de0ba1281aa7afe3907b795cea14852b3d8fe276e8931cb130"
-            )
+            keys = testXmrKeys
         )
 
         // When
@@ -241,10 +238,7 @@ class UserServiceIntegrationTest: BasicIntegrationTest() {
         // Given
         val expectedCryptoKeysData = CryptoKeysData(
             xmr = XmrKeysData(
-                keys = XmrKeys(
-                    priv = "8aa763d1c8d9da4ca75cb6ca22a021b5cca376c1367be8d62bcc9cdf4b926009",
-                    pub = "38e9908d33d034de0ba1281aa7afe3907b795cea14852b3d8fe276e8931cb130"
-                ),
+                keys = testXmrKeys,
                 enabled = false
             )
         )
@@ -266,10 +260,7 @@ class UserServiceIntegrationTest: BasicIntegrationTest() {
         // Given
         val expectedCryptoKeysData = CryptoKeysData(
             xmr = XmrKeysData(
-                keys = XmrKeys(
-                    priv = "8aa763d1c8d9da4ca75cb6ca22a021b5cca376c1367be8d62bcc9cdf4b926009",
-                    pub = "38e9908d33d034de0ba1281aa7afe3907b795cea14852b3d8fe276e8931cb130"
-                ),
+                keys = testXmrKeys,
                 enabled = true
             )
         )
