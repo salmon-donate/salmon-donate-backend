@@ -50,7 +50,7 @@ class PaymentService(
     fun createCryptoPayment(request: NewCryptoPaymentRequest): InvoiceToPayDTO {
         val invReq = InvoiceOuterClass.CreateInvoiceRequest
             .newBuilder()
-            .setUserId(request.goipayUserId.toString())
+            .setUserId(request.userId.toString())
             .setCoin(request.coin)
             .setAmount(converter.convertUsdToCrypto(request.amount, request.coin))
             .setConfirmations(confirmations(request.coin, request.confirmation).toInt())

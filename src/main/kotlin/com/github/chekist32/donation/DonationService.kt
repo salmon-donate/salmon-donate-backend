@@ -108,7 +108,7 @@ class DonationService(
 
         val invoice = paymentService.createCryptoPayment(
             NewCryptoPaymentRequest(
-                goipayUserId = userId,
+                userId = userId,
                 amount = minAmount,
                 currency = minAmountCurrency,
                 confirmation = confirmation,
