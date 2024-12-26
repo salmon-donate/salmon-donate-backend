@@ -37,7 +37,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Run JVM Build Script
-        run: ./scripts/build-jvm.sh
+        run: ./scripts/build.sh
 
       - name: Build and Push JVM Docker Image
         uses: docker/build-push-action@v6
@@ -94,7 +94,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Run GraalVM Build Script
-        run: ./scripts/build-native.sh
+        run: ./scripts/build.sh -n
 
       - name: Build and Push by Digest
         id: build
