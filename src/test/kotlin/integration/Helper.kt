@@ -1,3 +1,5 @@
+package integration
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.chekist32.jooq.goipay.tables.references.CRYPTO_ADDRESSES
 import com.github.chekist32.jooq.goipay.tables.references.CRYPTO_DATA

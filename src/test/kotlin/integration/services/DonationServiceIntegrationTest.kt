@@ -1,3 +1,5 @@
+package integration.services
+
 import com.github.chekist32.donation.DonationDTOForReceiver
 import com.github.chekist32.donation.DonationDTOForReceiverResponse
 import com.github.chekist32.donation.DonationRequest
@@ -13,6 +15,8 @@ import com.github.chekist32.jooq.sd.tables.references.TIME_ZONES
 import com.github.chekist32.jooq.sd.tables.references.USERS
 import com.github.chekist32.user.CryptoKeysData
 import com.github.chekist32.user.XmrKeysData
+import integration.BasicIntegrationTest
+import integration.TestUser
 import io.grpc.StatusRuntimeException
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject

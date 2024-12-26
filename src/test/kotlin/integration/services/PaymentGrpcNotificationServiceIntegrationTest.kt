@@ -1,6 +1,10 @@
+package integration.services
+
 import com.github.chekist32.user.CryptoKeysData
 import com.github.chekist32.user.XmrKeysData
 import crypto.v1.Crypto
+import integration.BasicIntegrationTest
+import integration.TestUser
 import invoice.v1.InvoiceOuterClass
 import io.quarkus.test.junit.QuarkusTest
 import org.junit.jupiter.api.Assertions

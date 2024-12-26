@@ -1,4 +1,8 @@
+package integration.services
+
 import com.github.chekist32.user.KeycloakUserService
+import integration.BasicIntegrationTest
+import integration.TestUser
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import jakarta.ws.rs.NotFoundException

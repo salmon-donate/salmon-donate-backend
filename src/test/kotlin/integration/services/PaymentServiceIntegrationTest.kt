@@ -1,3 +1,5 @@
+package integration.services
+
 import com.github.chekist32.converter.CryptoCurrencyConverter
 import com.github.chekist32.jooq.goipay.enums.InvoiceStatusType
 import com.github.chekist32.jooq.goipay.tables.references.INVOICES
@@ -9,6 +11,8 @@ import com.github.chekist32.toCoinTypeJooq
 import com.github.chekist32.user.CryptoKeysData
 import com.github.chekist32.user.XmrKeysData
 import crypto.v1.Crypto
+import integration.BasicIntegrationTest
+import integration.TestUser
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import jakarta.ws.rs.NotFoundException

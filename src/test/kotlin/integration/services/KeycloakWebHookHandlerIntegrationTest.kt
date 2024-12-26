@@ -1,8 +1,12 @@
+package integration.services
+
 import com.github.chekist32.jooq.sd.tables.references.DONATION_PROFILE_DATA
 import com.github.chekist32.jooq.sd.tables.references.USERS
 import com.github.chekist32.webhook.KeycloakEventRequest
 import com.github.chekist32.webhook.KeycloakEventType
 import com.github.chekist32.webhook.KeycloakWebHookHandler
+import integration.BasicIntegrationTest
+import integration.TestUser
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import org.jooq.impl.DSL

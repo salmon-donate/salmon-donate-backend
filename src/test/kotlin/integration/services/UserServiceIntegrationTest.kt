@@ -1,3 +1,5 @@
+package integration.services
+
 import com.github.chekist32.jooq.goipay.tables.references.CRYPTO_DATA
 import com.github.chekist32.jooq.goipay.tables.references.XMR_CRYPTO_DATA
 import com.github.chekist32.jooq.sd.enums.ConfirmationType
@@ -6,6 +8,8 @@ import com.github.chekist32.jooq.sd.enums.CurrencyType
 import com.github.chekist32.jooq.sd.tables.references.DONATION_PROFILE_DATA
 import com.github.chekist32.jooq.sd.tables.references.USERS
 import com.github.chekist32.user.*
+import integration.BasicIntegrationTest
+import integration.TestUser
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import jakarta.ws.rs.client.ClientBuilder
