@@ -34,10 +34,10 @@ fun UserRepresentation.toDonationData(avatarUrl: String?, bio: String?, accepted
 
 data class DonationRequest(
     @field:JsonProperty("from")
-    @Size(min = 1, max = 50)
+    @field:Size(min = 1, max = 50)
     val from: String,
     @field:JsonProperty("message")
-    @Size(max = 300)
+    @field:Size(max = 300)
     val message: String?,
     @field:JsonProperty("coin")
     val coin: CryptoType
