@@ -383,7 +383,7 @@ class GoipayTestResource: QuarkusTestResourceLifecycleManager {
 
         goipayDbContainer.start()
 
-        val migrations = GenericContainer("chekist32/goose-docker")
+        val migrations = GenericContainer("ghcr.io/kukymbr/goose-docker:latest")
         migrations.withNetwork(net)
             .dependsOn(goipayDbContainer)
             .withFileSystemBind("external/goipay/sql/migrations", "/migrations", BindMode.READ_ONLY)

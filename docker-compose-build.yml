@@ -18,7 +18,7 @@ services:
       - goipay_build
 
   backend-goipay_db_migrations:
-    image: chekist32/goose-docker
+    image: ghcr.io/kukymbr/goose-docker:latest
     environment:
       - GOOSE_DRIVER=postgres
       - GOOSE_DBSTRING=host=backend-goipay_db port=5432 user=${GOIPAY_DB_USER:-postgres} password=${GOIPAY_DB_PASS:-postgres} dbname=${GOIPAY_DB_NAME:-goipay_db}
