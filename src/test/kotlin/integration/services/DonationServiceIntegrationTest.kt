@@ -145,7 +145,7 @@ class DonationServiceIntegrationTest: BasicIntegrationTest() {
             .fetchOne() ?: throw InternalServerErrorException()
         if (offset == null) throw InternalServerErrorException()
 
-        val pairsCount = 1 + rand.nextInt().absoluteValue % 1000
+        val pairsCount = 10 + rand.nextInt().absoluteValue % 1000
         val paymentDonationList = ArrayList<Pair<InvoicesRecord, DonationsRecord>>(pairsCount)
 
         repeat(pairsCount) {
