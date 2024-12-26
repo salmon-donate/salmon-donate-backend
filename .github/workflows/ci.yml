@@ -10,6 +10,7 @@ on:
       - "src/**"
       - "pom.xml"
       - ".env.test"
+      - ".github/workflows/ci.yml"
   pull_request:
     branches:
       - master
@@ -19,6 +20,7 @@ on:
       - "src/**"
       - "pom.xml"
       - ".env.test"
+      - ".github/workflows/ci.yml"
 
 jobs:
   build:
@@ -27,6 +29,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Set up JDK
         uses: actions/setup-java@v3
