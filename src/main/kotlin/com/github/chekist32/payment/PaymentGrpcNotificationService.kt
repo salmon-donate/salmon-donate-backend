@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Startup
@@ -33,17 +34,12 @@ class PaymentGrpcNotificationService(
         }
     }
 
-    fun subscribeToInvoice(onInvoice: suspend (Invoice) -> Unit) {
-        subscriberCoroutineScope.launch {
-            mutableSharedFlow.collect { res -> onInvoice(res.invoice) }
-        }
-    }
-
-    fun subscribeToInvoiceByStatus(onInvoice: suspend (Invoice) -> Unit, status: InvoiceOuterClass.InvoiceStatusType) {
+    fun subscribeToInvoice(filter: (Invoice) -> Boolean = { true }, onInvoice: suspend (Invoice) -> Unit) {
         subscriberCoroutineScope.launch {
             mutableSharedFlow
-                .filter { res -> res.invoice.status == status }
-                .collect { res -> onInvoice(res.invoice) }
+                .map { it.invoice }
+                .filter { filter(it) }
+                .collect { invoice -> onInvoice(invoice) }
         }
     }
 }

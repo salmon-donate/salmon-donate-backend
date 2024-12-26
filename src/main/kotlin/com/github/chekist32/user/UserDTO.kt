@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.chekist32.jooq.sd.enums.ConfirmationType
 import com.github.chekist32.jooq.sd.enums.CurrencyType
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Pattern
-import jakarta.validation.constraints.Size
+import jakarta.validation.Valid
+import jakarta.validation.constraints.*
 
 data class XmrKeysData @JsonCreator constructor(
     @field:JsonProperty("keys")
@@ -26,12 +25,12 @@ data class CryptoKeysData @JsonCreator constructor(
 )
 data class XmrKeys @JsonCreator constructor(
     @field:JsonProperty("priv")
-    @Size(min = 64, max = 64)
-    @Pattern(regexp = "^[0-9a-fA-F]+$", message = "Private key must be a valid hexadecimal string")
+    @field:Size(min = 64, max = 64)
+    @field:Pattern(regexp = "^[0-9a-fA-F]+$", message = "Private key must be a valid hexadecimal string")
     val priv: String,
     @field:JsonProperty("pub")
-    @Size(min = 64, max = 64)
-    @Pattern(regexp = "^[0-9a-fA-F]+$", message = "Public key must be a valid hexadecimal string")
+    @field:Size(min = 64, max = 64)
+    @field:Pattern(regexp = "^[0-9a-fA-F]+$", message = "Public key must be a valid hexadecimal string")
     val pub: String
 )
 
@@ -39,13 +38,16 @@ data class UpdateXMRDataRequest(
     @field:JsonProperty("enabled")
     val enabled: Boolean,
     @field:JsonProperty("keys")
+    @field:Valid
     val keys: XmrKeys
 )
 
 data class UpdateDonationProfileDataRequest(
     @field:JsonProperty("minAmount")
+    @field:PositiveOrZero
     val minAmount: Double,
     @field:JsonProperty("timeout")
+    @field:Min(60)
     val timeout: Short,
     @field:JsonProperty("confirmationType")
     val confirmationType: ConfirmationType
@@ -73,13 +75,13 @@ data class ProfileDataResponse(
 
 data class ProfileDataUpdateRequest(
     @field:JsonProperty("bio")
-    @Size(max = 300, message = "The maximum length for the bio field is 300 characters")
+    @field:Size(max = 300, message = "The maximum length for the bio field is 300 characters")
     val bio: String?,
     @field:JsonProperty("firstName")
-    @Size(max = 50, message = "The maximum length for the firstName field is 50 characters")
+    @field:Size(max = 50, message = "The maximum length for the firstName field is 50 characters")
     val firstName: String,
     @field:JsonProperty("lastName")
-    @Size(max = 50, message = "The maximum length for the lastName field is 50 characters")
+    @field:Size(max = 50, message = "The maximum length for the lastName field is 50 characters")
     val lastName: String
 )
 
@@ -92,7 +94,7 @@ data class TimeZone(
 
 data class RegionalProfileDataRequest(
     @field:JsonProperty("timeZoneName")
-    @NotBlank
+    @field:NotBlank
     val timeZoneName: String,
     @field:JsonProperty("currency")
     val currency: CurrencyType

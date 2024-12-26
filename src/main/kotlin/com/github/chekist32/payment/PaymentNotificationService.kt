@@ -26,12 +26,9 @@ class PaymentNotificationService(
 ) {
     private val sseConnections = ConcurrentHashMap<UUID, SseBroadcaster>()
 
-    @OptIn(DelicateCoroutinesApi::class)
     @PostConstruct
     protected fun init() {
-        GlobalScope.launch {
-            paymentGrpcNotificationService.subscribeToInvoice(::onNewInvoice)
-        }
+        paymentGrpcNotificationService.subscribeToInvoice { onNewInvoice(it) }
     }
 
     private suspend fun onNewInvoice(invoice: Invoice) {

@@ -104,7 +104,7 @@ fun InvoicesRecord.toInvoiceToPayDTO(): InvoiceToPayDTO {
 }
 
 data class NewCryptoPaymentRequest(
-    val goipayUserId: UUID,
+    val userId: UUID,
     @Positive
     val amount: Double,
     val currency: CurrencyType,
