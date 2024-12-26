@@ -4,69 +4,67 @@ services:
   backend-goipay_db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: goipay_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${GOIPAY_DB_NAME:-goipay_db}
+      POSTGRES_USER: ${GOIPAY_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${GOIPAY_DB_PASS:-postgres}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d goipay_db" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${GOIPAY_DB_USER:-postgres} -d ${GOIPAY_DB_NAME:-goipay_db}" ]
       interval: 10s
       timeout: 5s
       retries: 5
     ports:
-      - "5433:5432"
+      - "${GOIPAY_DB_PORT:-5433}:5432"
+    networks:
+      - goipay_build
 
   backend-goipay_db_migrations:
     image: chekist32/goose-docker
     environment:
       - GOOSE_DRIVER=postgres
-      - GOOSE_DBSTRING=host=backend-goipay_db port=5432 user=postgres password=postgres dbname=goipay_db
+      - GOOSE_DBSTRING=host=backend-goipay_db port=5432 user=${GOIPAY_DB_USER:-postgres} password=${GOIPAY_DB_PASS:-postgres} dbname=${GOIPAY_DB_NAME:-goipay_db}
     volumes:
       - ./external/goipay/sql/migrations:/migrations
     depends_on:
       backend-goipay_db:
         condition: service_healthy
-
-  backend-goipay:
-    image: chekist32/goipay:v0.4.0
-    environment:
-      - MODE=dev
-      - SERVER_HOST=0.0.0.0
-      - SERVER_PORT=3000
-      - SERVER_TLS_MODE=none
-      - DATABASE_HOST=backend-goipay_db
-      - DATABASE_PORT=5432
-      - DATABASE_USER=postgres
-      - DATABASE_PASS=postgres
-      - DATABASE_NAME=goipay_db
-      - XMR_DAEMON_URL=http://node.monerodevs.org:38089
-      - XMR_DAEMON_USER=
-      - XMR_DAEMON_PASS=
-    command: ["--reflection"]
-    depends_on:
-      backend-goipay_db_migrations:
-        condition: service_completed_successfully
-    ports:
-      - "3000:3000"
+    networks:
+      - goipay_build
 
   backend-backend_db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: salmon_donate_backend
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${SD_DB_NAME:-salmon_donate_backend}
+      POSTGRES_USER: ${SD_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${SD_DB_PASS:-postgres}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d salmon_donate_backend" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${SD_DB_USER:-postgres} -d ${SD_DB_NAME:-salmon_donate_backend}" ]
       interval: 10s
       timeout: 5s
       retries: 5
     ports:
-      - "5434:5432"
+      - "${SD_DB_PORT:-5434}:5432"
+    networks:
+      - backend_build
 
   backend-migrations_backend_db:
     image: liquibase/liquibase
     volumes:
       - ./src/main/resources/db:/liquibase/changelog
-    command: liquibase --driver=org.postgresql.Driver --url='jdbc:postgresql://backend-backend_db:5432/salmon_donate_backend' --changeLogFile=./changelog/migrations-master.yml --username=postgres --password=postgres update
+    command: liquibase --driver=org.postgresql.Driver --url='jdbc:postgresql://backend-backend_db:5432/${SD_DB_NAME:-salmon_donate_backend}' --changeLogFile=./changelog/migrations-master.yml --username=${SD_DB_USER:-postgres} --password=${SD_DB_PASS:-postgres} update
     depends_on:
       backend-backend_db:
         condition: service_healthy
+    networks:
+      - backend_build
+
+  wait:
+    image: busybox:stable
+    depends_on:
+      backend-goipay_db_migrations:
+        condition: service_completed_successfully
+      backend-migrations_backend_db:
+          condition: service_completed_successfully
+
+networks:
+  goipay_build:
+  backend_build:
