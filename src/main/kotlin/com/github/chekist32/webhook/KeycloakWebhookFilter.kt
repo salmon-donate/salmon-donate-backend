@@ -11,9 +11,12 @@ import javax.crypto.spec.SecretKeySpec
 
 class KeycloakWebhookFilter(
     @ConfigProperty(name = "keycloak-webhook.secret")
-    private val apiKey: String?
+    private val apiKey: String
 ) {
-    private val uriMatcher = "/api/v1/webhook/keycloak_event_webhook"
+    companion object {
+        const val URI_MATCHER = "/api/v1/webhook/keycloak_event_webhook"
+        const val SIGNATURE_HEADER_NAME = "X-Keycloak-Signature"
+    }
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun hmacSha256(secret: String, msg: ByteArray): String {
@@ -25,12 +28,12 @@ class KeycloakWebhookFilter(
 
     @ServerRequestFilter
     fun checkApiKey(ctx: ContainerRequestContext): Response?  {
-        if (apiKey == null || ctx.uriInfo.path != uriMatcher) return null
+        if (ctx.uriInfo.path != URI_MATCHER) return null
 
-        val reqApiKey = ctx.getHeaderString("X-Keycloak-Signature") ?: return Response.status(Response.Status.UNAUTHORIZED).build()
+        val reqSignature = ctx.getHeaderString(SIGNATURE_HEADER_NAME) ?: return Response.status(Response.Status.UNAUTHORIZED).build()
         val reqBody = ctx.getBodyWithoutModifying()
 
-        if (reqApiKey != hmacSha256(apiKey, reqBody)) return Response.status(Response.Status.UNAUTHORIZED).build()
+        if (reqSignature != hmacSha256(apiKey, reqBody)) return Response.status(Response.Status.UNAUTHORIZED).build()
 
         return null
     }
