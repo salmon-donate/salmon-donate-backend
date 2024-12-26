@@ -14,6 +14,7 @@ import com.github.chekist32.user.CryptoKeysData
 import com.github.chekist32.user.XmrKeys
 import crypto.v1.Crypto
 import dasniko.testcontainers.keycloak.KeycloakContainer
+import getEnvOrThrow
 import invoice.v1.InvoiceServiceGrpc
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
@@ -48,12 +49,6 @@ import java.security.SecureRandom
 import java.time.Duration
 import java.util.*
 
-
-fun getEnvOrThrow(name: String): String {
-    val value = System.getenv(name)
-    if (value.isEmpty()) throw IllegalArgumentException("Env var $name must be specified")
-    return value
-}
 
 @QuarkusTestResource(MinioTestResource::class)
 @QuarkusTestResource(KeycloakTestResource::class)
