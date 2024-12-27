@@ -23,7 +23,7 @@ on:
       - ".github/workflows/ci.yml"
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -43,4 +43,4 @@ jobs:
           set -a
           source .env.test
           set +a
-          mvn test
+          mvn clean test
