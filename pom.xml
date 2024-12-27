@@ -23,7 +23,6 @@
         <grpc.java.version>1.39.0</grpc.java.version>
         <grpc.kotlin.version>1.4.1</grpc.kotlin.version>
         <protobuf.version>3.18.1</protobuf.version>
-        <smallrye.graphql.version>2.10.0</smallrye.graphql.version>
     </properties>
 
     <dependencyManagement>
@@ -162,18 +161,6 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-graphql-client</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.smallrye</groupId>
-            <artifactId>smallrye-graphql-client-generator</artifactId>
-            <version>${smallrye.graphql.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -400,21 +387,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${compiler-plugin.version}</version>
-                <configuration>
-                    <parameters>true</parameters>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>io.smallrye</groupId>
-                            <artifactId>smallrye-graphql-client-generator</artifactId>
-                            <version>${smallrye.graphql.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
             </plugin>
 
             <plugin>
